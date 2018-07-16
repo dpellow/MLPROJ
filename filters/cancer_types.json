@@ -1,0 +1,34 @@
+[
+  {
+      "disease_code": {
+        "type": "string",
+        "value": [
+          "UVM"
+        ]
+      }
+    },
+    {
+      "disease_code": {
+        "type": "string",
+        "value": [
+          "STAD"
+        ]
+      }
+    },
+    {
+      "disease_code": {
+        "type": "string",
+        "value": [
+          "BRCA"
+        ]
+      }
+    },
+    {
+      "disease_code": {
+        "type": "string",
+        "value": [
+          "PAAD"
+        ]
+      }
+    }
+]
