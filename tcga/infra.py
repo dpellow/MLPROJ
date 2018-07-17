@@ -1,10 +1,19 @@
+import time
+import re
 import os
-from operator import mul
+import math
+import random
+from decimal import Decimal, ROUND_HALF_EVEN
+from operator import mul    # or mul=lambda x,y:x*y
 from fractions import Fraction
+import numpy.random
+from sklearn.datasets import fetch_mldata
+import sklearn.preprocessing
 import numpy as np
-import sys
-import pandas as pd
-sys.path.insert(0, '../')
+import matplotlib as mpl
+#mpl.use('Agg')
+import scipy.special
+import matplotlib.pyplot as plt
 from utils.stopwatch import Stopwatch
 from matplotlib import style
 style.use("ggplot")
@@ -13,11 +22,12 @@ sh = logging.StreamHandler()
 logger = logging.getLogger("log")
 logger.addHandler(sh)
 import constants
+import sys
 ############################################ infra ########################################
 
 def load_gene_list(gene_list_file_name, gene_list_path=None): #  ="TCGA-SKCM.htseq_counts.tsv"
     if gene_list_path == None:
-        gene_list_path = os.path.join(constants.LIST_DIR, gene_list_file_name)
+        gene_list_path = os.path.join(constants.LIST_DIR,gene_list_file_name)
     f = open(gene_list_path,'r')
     lines = [l.strip() for l in f]
     f.close()
@@ -25,7 +35,7 @@ def load_gene_list(gene_list_file_name, gene_list_path=None): #  ="TCGA-SKCM.hts
 
 def load_dictionary(gene_list_file_name, gene_list_path=None): #  ="TCGA-SKCM.htseq_counts.tsv"
     if gene_list_path == None:
-        gene_list_path = os.path.join(constants.DICTIONARIES_DIR, gene_list_file_name)
+        gene_list_path = os.path.join(constants.DICTIONARIES_DIR,gene_list_file_name)
     f = open(gene_list_path,'r')
     lines = [l.strip().split() for l in f]
     f.close()
@@ -33,11 +43,6 @@ def load_dictionary(gene_list_file_name, gene_list_path=None): #  ="TCGA-SKCM.ht
 
 # return gene expression table filtered according an external list with proper orientation (0 degree angle according genes, 90 degree angle according patients)
 def load_gene_expression_profile(gene_list_file_name, gene_expression_file_name, gene_filter_file_name=None, gene_list_path=None, gene_expression_path=None, gene_filter_path=None ,by_gene=False, list_mode = "FROM_DISK"):
-
-    cache_path = os.path.join(constants.CACHE_DIR, "datasets", "datasets_{}_{}.npy".format(gene_expression_file_name.split(".")[0],
-                                                         gene_list_file_name.split(".")[0]))
-
-
     stopwatch = Stopwatch()
     stopwatch.start()
     if list_mode == "ON_THE_FLY":
@@ -67,69 +72,11 @@ def load_gene_expression_profile(gene_list_file_name, gene_expression_file_name,
         expression_profiles_filtered = np.flip(np.rot90(expression_profiles_filtered, k=1, axes=(1,0)),1)
         print stopwatch.stop("done rotate gene expression")
 
-
     return expression_profiles_filtered
-
-
-def load_gene_expression_profile_pandas(gene_list_file_name, gene_expression_file_name, gene_filter_file_name=None, gene_list_path=None, gene_expression_path=None, gene_filter_path=None ,by_gene=False, list_mode = "FROM_DISK"):
-
-    cache_path = os.path.join(constants.CACHE_DIR, "datasets", "datasets_{}_{}_pandas.txt".format(gene_expression_file_name.split(".")[0],
-                                                         gene_list_file_name.split(".")[0]))
-    if constants.USE_CACHE:
-        if os.path.exists(cache_path):
-            return pd.read_table(cache_path, index_col=0)
-
-    stopwatch = Stopwatch()
-    stopwatch.start()
-    if list_mode == "ON_THE_FLY":
-        gene_list = gene_list_file_name
-    else:
-        gene_list = load_gene_list(gene_list_file_name=gene_list_file_name, gene_list_path=gene_list_path)
-    gene_list = [l for i, l in enumerate(gene_list)]
-    print stopwatch.stop("done loading gene list")
-    # random.shuffle(gene_list)
-    # gene_list = gene_list[:400]
-    if gene_filter_file_name:
-        stopwatch.start()
-        filter_gene_list = load_gene_list(gene_list_file_name=gene_filter_file_name, gene_list_path=gene_filter_path)
-        gene_list = [cur for cur in gene_list if cur in filter_gene_list]
-        print stopwatch.stop("done filter gene list")
-
-    if gene_expression_path == None:
-        gene_expression_path = os.path.join(constants.TCGA_DATA_DIR, gene_expression_file_name)
-        stopwatch.start()
-
-    #########################
-    # f = open(gene_expression_path,'r')
-    # expression_profiles_filtered = [l.strip().split() for i, l in enumerate(f) if i==0 or l[:l.strip().find('\t')].split(".")[0] in gene_list]
-    # # or l.strip()[0:l.strip().find('\t')] in gene_list or l.strip()[0:l.strip().find('\t')].split(".")[0] in gene_list
-    # f.close()
-    ########################
-    expression_profiles = pd.read_table(gene_expression_path, index_col=0)
-    expression_profiles_filtered = expression_profiles.ix[gene_list]
-
-
-    print stopwatch.stop("done filter gene expression")
-    if not by_gene:
-        stopwatch.start()
-        expression_profiles_filtered = expression_profiles_filtered.T
-        print stopwatch.stop("done rotate gene expression")
-
-
-    if constants.USE_CACHE:
-        if not os.path.exists(os.path.dirname(cache_path)):
-            os.makedirs(os.path.dirname(cache_path))
-        expression_profiles_filtered.to_csv(cache_path, sep="\t")
-
-    return expression_profiles_filtered
-
 
 
 def load_gene_expression_profile_by_genes(gene_list_file_name, gene_expression_file_name, gene_filter_file_name=None, gene_list_path=None, gene_expression_path=None, gene_filter_path=None, list_mode="FROM_DISK"):
     return load_gene_expression_profile(gene_list_file_name=gene_list_file_name, gene_expression_file_name=gene_expression_file_name, gene_filter_file_name=gene_filter_file_name, gene_list_path=gene_list_path, gene_expression_path=gene_expression_path, gene_filter_path=gene_filter_path, by_gene=True, list_mode=list_mode)
-
-def load_gene_expression_profile_by_genes_pandas(gene_list_file_name, gene_expression_file_name, gene_filter_file_name=None, gene_list_path=None, gene_expression_path=None, gene_filter_path=None, list_mode="FROM_DISK"):
-    return load_gene_expression_profile_pandas(gene_list_file_name=gene_list_file_name, gene_expression_file_name=gene_expression_file_name, gene_filter_file_name=gene_filter_file_name, gene_list_path=gene_list_path, gene_expression_path=gene_expression_path, gene_filter_path=gene_filter_path, by_gene=True, list_mode=list_mode)
 
 def load_gene_expression_profile_by_patients(gene_list_file_name, gene_expression_file_name, gene_filter_file_name=None, gene_list_path=None, gene_expression_path=None, gene_filter_path=None, list_mode="FROM_DISK"):
     return load_gene_expression_profile(gene_list_file_name=gene_list_file_name, gene_expression_file_name=gene_expression_file_name, gene_filter_file_name=gene_filter_file_name, gene_list_path=gene_list_path, gene_expression_path=gene_expression_path, gene_filter_path=gene_filter_path,by_gene=False, list_mode=list_mode)
@@ -137,29 +84,19 @@ def load_gene_expression_profile_by_patients(gene_list_file_name, gene_expressio
 
 def load_phenotype_data(phenotype_file_name, phenotype_list_path=None, source="GDC-TCGA",dataset="melanoma"):
     if not phenotype_list_path:
-        phenotype_list_path = os.path.join(constants.TCGA_DATA_DIR, phenotype_file_name)
+        phenotype_list_path = os.path.join(constants.TCGA_DATA_DIR,phenotype_file_name)
     f = open(phenotype_list_path, 'r')
     phenotype_profile = [l.strip().split('\t') for l in f]
     f.close()
     return phenotype_profile
 
-def load_phenotype_data_pandas(phenotype_file_name, phenotype_list_path=None, source="GDC-TCGA",dataset="melanoma"):
-    if not phenotype_list_path:
-        phenotype_list_path = os.path.join(constants.TCGA_DATA_DIR, phenotype_file_name)
-    return pd.read_table(phenotype_list_path, index_col=0)
-
 def load_survival_data(survival_file_name, survival_list_path=None, source="GDC-TCGA",dataset="melanoma"):
     if not survival_list_path:
-        survival_list_path = os.path.join(constants.TCGA_DATA_DIR, survival_file_name)
+        survival_list_path = os.path.join(constants.TCGA_DATA_DIR,survival_file_name)
     f = open(survival_list_path, 'r')
     survival_profile = [l.strip().split('\t') for l in f]
     f.close()
     return survival_profile
-
-def load_survival_data_pandas(survival_file_name, survival_list_path=None, source="GDC-TCGA",dataset="melanoma"):
-    if not survival_list_path:
-        survival_list_path = os.path.join(constants.TCGA_DATA_DIR, survival_file_name)
-    return pd.read_table(survival_list_path, index_col=0)
 
 def load_mutation_data(mutation_file_name, mutation_list_path=None, source="GDC-TCGA", dataset="melanoma"):
     if not mutation_list_path:
@@ -176,54 +113,15 @@ def load_mutation_data(mutation_file_name, mutation_list_path=None, source="GDC-
 
 def divided_patient_ids_by_label(phenotype_list_file_name, phenotype_list_path=None, labels=None, label_values=None, groups=None):
     thismodule = sys.modules[__name__]
-    if not groups:
+    if not groups and not labels:
         groups = [{"sample_type.samples" :{"type": "string", "value": ["Primary Tumor"]}},
                   {"sample_type.samples": {"type": "string", "value": ["Metastatic"]}}]
-
+    elif not groups and any(labels):
+        divided_patient_ids_by_label_old(phenotype_list_file_name, phenotype_list_path, labels, label_values)
+        return
     phenotype_data_formatted = load_phenotype_data(phenotype_list_file_name, phenotype_list_path)
     headers = phenotype_data_formatted[0]
     phenotype_profiles = phenotype_data_formatted[1:]
-    patients_by_labeling = []
-    for i in range(len(groups)):
-        patients_by_labeling.append([])
-    label_indices = []
-    duplicates_counter = 0
-    try:
-        for i, pp in enumerate(phenotype_profiles):
-            for j, cur_group in enumerate(groups):
-                dup=0
-                is_hold_constraits = True
-                for k,v in cur_group.iteritems():
-                    if k in constants.FILTER_KEYWORDS: continue
-                    if len(pp) <= headers.index(k):
-                        is_hold_constraits = False
-                        continue
-                    if v['type'] == "string":
-                        if not any([pp[headers.index(k)] == cur for cur in v["value"]]):
-                            is_hold_constraits = False
-                    elif v['type'] == "number":
-                        if not getattr(thismodule, "num_op_{}".format(v['op']))(pp[headers.index(k)], v["value"]):
-                                is_hold_constraits = False
-                if is_hold_constraits:
-                    patients_by_labeling[j].append(pp[0])
-                    dup+=1
-            if dup > 1:
-                duplicates_counter+=1
-        print "number of duplicated patients: {}".format(duplicates_counter)
-    except ValueError:
-        print ValueError
-        pass
-    return (patients_by_labeling)
-
-
-def divided_patient_ids_by_label_pandas(phenotype_list_file_name, phenotype_list_path=None, labels=None, label_values=None, groups=None):
-    thismodule = sys.modules[__name__]
-    if not groups:
-        groups = [{"sample_type.samples" :{"type": "string", "value": ["Primary Tumor"]}},
-                  {"sample_type.samples": {"type": "string", "value": ["Metastatic"]}}]
-
-        phenotype_profiles = load_phenotype_data_pandas(phenotype_list_file_name, phenotype_list_path)
-    headers = phenotype_profiles.columns
     patients_by_labeling = []
     for i in range(len(groups)):
         patients_by_labeling.append([])
@@ -326,7 +224,7 @@ def save_sets(st,fl_name):
     fl = open(fl_name,'w+')
     for cur in st:
         for n in cur:
-            fl.write(str(n) + constants.SEPARATOR)
+            fl.write(str(n)+constants.SEPARATOR)
         fl.write('\n')
 
 def load_sets(fl_name):
@@ -363,12 +261,36 @@ def separate_headers(dataset, is_numbers=True):
 def load_integrated_mutation_data(mutation_file_name,
                             survival_file_name, phenotype_file_name, gene_filter_file_name=None, filter_expression=None,
                             meta_groups=None, phenotype_labels_heatmap=None, var_th_index=None):
-    mutation_dataset = np.array(load_mutation_data(mutation_file_name))
+
+
+    cache_path = os.path.join(constants.CACHE_DIR, "datasets",
+                              "datasets_{}".format(mutation_file_name[:mutation_file_name.rindex(".")]))
+
+    if constants.USE_CACHE and os.path.exists(cache_path):
+        print "loading datasets from cache"
+        mutations_headers_rows =  np.load(os.path.join(cache_path,"header_rows.npy"))
+        mutations_headers_columns =  np.load(os.path.join(cache_path,"header_columns.npy"))
+        mutation_dataset =  np.load(os.path.join(cache_path,"data.npy"))
+    else:
+        print "loading datasets from files"
+        mutation_dataset = np.array(load_mutation_data(mutation_file_name))
+        print "separating dataset headers"
+        mutations_headers_rows, mutations_headers_columns, mutation_dataset = separate_headers(
+            mutation_dataset, is_numbers=False)
+
+    if constants.USE_CACHE:
+        if not os.path.exists(cache_path):
+            os.makedirs(cache_path)
+        print "saving data to cahce"
+        np.save(os.path.join(cache_path,"header_rows.npy"), mutations_headers_rows)
+        np.save(os.path.join(cache_path,"header_columns.npy"), mutations_headers_columns)
+        np.save(os.path.join(cache_path,"data.npy"), mutation_dataset)
+
     survival_dataset = np.array(load_survival_data(survival_file_name, survival_list_path=None))
     phenotype_dataset = np.array(load_phenotype_data(phenotype_file_name, phenotype_list_path=None))
 
     if np.shape(mutation_dataset)[0] < 2:
-        print "no expressions were found for the specific gene list {}. skipping...".format(
+        print "no mutations were found for the specific gene list {}. skipping...".format(
             mutation_file_name.split(".")[0])
         return None
 
@@ -376,9 +298,9 @@ def load_integrated_mutation_data(mutation_file_name,
         filtered_patients =[ y for x in divided_patient_ids_by_label(phenotype_file_name, groups=filter_expression) for y in x]
         print "number of filtered patients from phenotypes: {}".format(len(filtered_patients))
     else:
-        filtered_patients = np.append(mutation_dataset[1:,0], survival_dataset[1:, 0])
+        filtered_patients = np.append(mutations_headers_columns, survival_dataset[1:, 0])
 
-    mutation_dataset = filter_patients_dataset_by_patients(filtered_patients, mutation_dataset)
+    mutation_dataset, mutations_headers_columns = filter_patients_dataset_by_patients(filtered_patients, mutations_headers_rows, mutation_dataset)
     if np.shape(mutation_dataset)[0] == 1:
         print "no expressions were found after filtering by labels {}. skipping...".format(filter_expression)
         return None
@@ -389,11 +311,7 @@ def load_integrated_mutation_data(mutation_file_name,
         return None
 
     print "total patients taken into account: {}".format(
-        len([x for x in survival_dataset[:, 0] if x in mutation_dataset[1:, 0]]))
-
-
-    mutations_headers_rows, mutations_headers_columns, mutation_dataset = separate_headers(
-        mutation_dataset, is_numbers=False)
+        len([x for x in survival_dataset[:, 0] if x in mutations_headers_rows]))
 
     unique_mutations_headers_rows = np.unique(mutations_headers_rows)
     labels_assignment = None
@@ -416,7 +334,7 @@ def load_integrated_ge_data(tested_gene_list_file_name, total_gene_list_file_nam
 
     cache_path = os.path.join(constants.CACHE_DIR, "datasets",
                               "datasets_{}_{}".format(gene_expression_file_name.split(".")[0],
-                                                          tested_gene_list_file_name.split(".")[0]))
+                                                      gene_expression_file_name[:tested_gene_list_file_name.rindex(".")]))
 
     tested_gene_expression_headers_rows = None
     tested_gene_expression_headers_columns = None
@@ -486,65 +404,12 @@ def load_integrated_ge_data(tested_gene_list_file_name, total_gene_list_file_nam
     else:
         print "skipping filter top vars"
 
-    tmp = tested_gene_expression_headers_rows
-    tested_gene_expression_headers_rows = tested_gene_expression_headers_columns
-    tested_gene_expression_headers_columns = tmp
-    tested_gene_expression = np.rot90(np.flip(tested_gene_expression, 1), k=-1, axes=(1, 0))
+    # tmp = tested_gene_expression_headers_rows
+    # tested_gene_expression_headers_rows = tested_gene_expression_headers_columns
+    # tested_gene_expression_headers_columns = tmp
+    # tested_gene_expression = np.rot90(np.flip(tested_gene_expression, 1), k=-1, axes=(1, 0))
 
     return (tested_gene_expression, tested_gene_expression_headers_rows, tested_gene_expression_headers_columns, labels_assignment, survival_dataset)
-
-def load_integrated_ge_data_pandas(tested_gene_list_file_name, total_gene_list_file_name, gene_expression_file_name,
-                            survival_file_name, phenotype_file_name, gene_filter_file_name=None, filter_expression=None,
-                            meta_groups=None, var_th_index=None):
-    tested_gene_expression = load_gene_expression_profile_by_genes_pandas(tested_gene_list_file_name, gene_expression_file_name,
-                                              gene_filter_file_name)
-
-
-    survival_dataset = load_survival_data_pandas(survival_file_name, survival_list_path=None)
-
-    if tested_gene_expression.shape[0] < 1:
-        print "no expressions were found for the specific gene list {}. skipping...".format(
-            tested_gene_list_file_name.split(".")[0])
-        return None
-
-    if filter_expression is not None:
-        filtered_patients = [y for x in divided_patient_ids_by_label_pandas(phenotype_file_name, groups=filter_expression) for y in x]
-        print "number of filtered patients from phenotypes: {}".format(len(filtered_patients))
-    else:
-        filtered_patients = np.append(tested_gene_expression.columns, survival_dataset.index)
-
-    tested_gene_expression = filter_genes_dataset_by_patients_pandas(filtered_patients, tested_gene_expression)
-    if tested_gene_expression.shape[0] == 1:
-        print "no expressions were found after filtering by labels {}. skipping...".format(filter_expression)
-        return None
-
-    survival_dataset = filter_survival_by_patients_pandas(filtered_patients, survival_dataset)
-    if np.shape(survival_dataset)[0] == 1:
-        print "no survivors were found after filtering by labels {}. skipping...".format(filter_expression)
-        return None
-
-    print "total patients taken into account: {}".format(
-        len(set(survival_dataset.index).intersection(tested_gene_expression.columns)))
-
-    labels_assignment = None
-    if meta_groups is not None:
-        labels_assignment = labels_assignments(meta_groups, phenotype_file_name,
-                                               np.array(tested_gene_expression)[0, 1:])
-
-    # print "separating dataset headers"
-    # tested_gene_expression_headers_rows, tested_gene_expression_headers_columns, tested_gene_expression = separate_headers(
-    #     tested_gene_expression)
-
-
-    if var_th_index is not None:
-        print "filtering top vars"
-        tested_gene_expression = filter_top_var_genes_pandas(tested_gene_expression)
-    else:
-        print "skipping filter top vars"
-
-    # tested_gene_expression = tested_gene_expression.T
-
-    return (tested_gene_expression, labels_assignment, survival_dataset)
 
 
 def filter_top_var_genes(tested_gene_expression, tested_gene_expression_headers_columns,
@@ -563,54 +428,25 @@ def filter_top_var_genes(tested_gene_expression, tested_gene_expression_headers_
 
     return gene_expression_top_var, gene_expression_top_var_headers_rows, gene_expression_top_var_headers_columns
 
-def filter_top_var_genes_pandas(tested_gene_expression, tested_gene_expression_headers_columns,
-                         tested_gene_expression_headers_rows, var_th_index):
-    row_var = tested_gene_expression.var(axis=1)
-    row_var_sorted = row_var.sort_values(ascending=False)
-    if var_th_index is None:
-        var_th_index = len(row_var_sorted) - 1
-
-    row_var_th = row_var_sorted[var_th_index]
-    row_var_masked_indices = np.where(row_var_th > row_var)[0]
-    gene_expression_top_var = np.delete(tested_gene_expression, row_var_masked_indices, axis=0)
-
-    gene_expression_top_var_headers_rows = np.delete(tested_gene_expression_headers_rows, row_var_masked_indices,
-                                                     axis=0)
-    gene_expression_top_var_headers_columns = tested_gene_expression_headers_columns
-
-    return gene_expression_top_var, gene_expression_top_var_headers_rows, gene_expression_top_var_headers_columns
 
 
 def filter_survival_by_patients(filtered_patients, survival_dataset):
     filtered_survival_bool = np.in1d(survival_dataset[:, 0], filtered_patients)
-    filtered_survival_bool[0] = True
+    # filtered_survival_bool[0] = True
     print "Total n patients in survival before filtering: {}".format(np.shape(survival_dataset)[0] - 1)
     survival_dataset = survival_dataset[filtered_survival_bool, :]
     print "Total n patients in survival after filtering: {}".format(np.shape(survival_dataset)[0] - 1)
     return survival_dataset
 
 
-def filter_survival_by_patients_pandas(filtered_patients, survival_dataset):
-    print "Total n patients in survival before filtering: {}".format(np.shape(survival_dataset)[0] - 1)
-    survival_dataset = survival_dataset.ix[filtered_patients]
-    print "Total n patients in survival after filtering: {}".format(np.shape(survival_dataset)[0] - 1)
-    return survival_dataset
-
-
 def filter_patients_dataset_by_patients(filtered_patients, total_patients, dataset_by_patients):
-    filtered_gene_expression_bool = np.in1d(total_patients[:,0], filtered_patients)
+    filtered_gene_expression_bool = np.in1d(total_patients, filtered_patients)
     # filtered_gene_expression_bool[0] = True
     print "Total n patients in expression before filtering: {}".format(np.shape(dataset_by_patients)[0] - 1)
     dataset_by_patients = dataset_by_patients[filtered_gene_expression_bool]
     total_patients = total_patients[filtered_gene_expression_bool]
     print "Total n patients in expression after filtering: {}".format(np.shape(dataset_by_patients)[0] - 1)
     return dataset_by_patients, total_patients
-
-def filter_patients_dataset_by_patients_pandas(filtered_patients, dataset_by_patients):
-    print "Total n patients in expression before filtering: {}".format(np.shape(dataset_by_patients)[0] - 1)
-    dataset_by_patients = dataset_by_patients.ix[filtered_patients]
-    print "Total n patients in expression after filtering: {}".format(np.shape(dataset_by_patients)[0] - 1)
-    return dataset_by_patients
 
 def filter_genes_dataset_by_patients(filtered_patients, total_patients, dataset_by_genes):
     filtered_gene_expression_bool = np.in1d(total_patients, filtered_patients)
@@ -620,12 +456,6 @@ def filter_genes_dataset_by_patients(filtered_patients, total_patients, dataset_
     total_patients = total_patients[filtered_gene_expression_bool]
     print "Total n patients in expression after filtering: {}".format(np.shape(dataset_by_genes)[1] - 1)
     return dataset_by_genes, total_patients
-
-def filter_genes_dataset_by_patients_pandas(filtered_patients, dataset_by_genes):
-    print "Total n patients in expression before filtering: {}".format(np.shape(dataset_by_genes)[1] - 1)
-    dataset_by_genes = dataset_by_genes.filter(filtered_patients)
-    print "Total n patients in expression after filtering: {}".format(np.shape(dataset_by_genes)[1] - 1)
-    return dataset_by_genes
 
 def num_op_gt(ds_value, q_value):
     try:
