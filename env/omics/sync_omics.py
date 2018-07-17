@@ -20,10 +20,12 @@ def sync_to_project():
 
 def replace_folder(source, dest):
     if os.path.exists(dest):
-        print "delete {}".format(os.path.join(dest, "dictionaries"))
-        shutil.rmtree(os.path.join(dest, "dictionaries"))
-        print "delete {}".format(os.path.join(dest, "list"))
-        shutil.rmtree(os.path.join(dest, "list"))
+        if os.path.exists(os.path.join(os.path.join(dest, "dictionaries"))):
+            print "delete {}".format(os.path.join(dest, "dictionaries"))
+            shutil.rmtree(os.path.join(dest, "dictionaries"))
+        if os.path.exists(os.path.join(os.path.join(dest, "list"))):
+            print "delete {}".format(os.path.join(dest, "list"))
+            shutil.rmtree(os.path.join(dest, "list"))
     else:
         print "create {}".format(dest)
         os.makedirs(dest)
