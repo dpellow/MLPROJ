@@ -20,6 +20,6 @@ def load(tested_gene_list_file_name, total_gene_list_file_name, gene_expression_
     print stopwatch.stop("Done loading integrated data")
     if data is None:
         print "insufficient data"
-        return
-    gene_expression_top_var, gene_expression_top_var_headers_rows, gene_expression_top_var_headers_columns, labels_assignment, survival_dataset = data
+        return None, None, None, None, None
+    return data
 

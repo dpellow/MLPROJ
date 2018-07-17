@@ -393,7 +393,7 @@ def load_integrated_ge_data(tested_gene_list_file_name, total_gene_list_file_nam
     labels_assignment = None
     if meta_groups is not None:
         print "clustering patients by groups"
-        labels_assignment = labels_assignments(meta_groups, phenotype_file_name,
+        labels_assignment =  labels_assignments(meta_groups, phenotype_file_name,
                                                tested_gene_expression_headers_columns)
 
     if var_th_index is not None:
