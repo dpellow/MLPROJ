@@ -56,7 +56,7 @@ def fetch_go_hierarchy():
                 rs = rels[rtype]
                 for r in rs:
                     relship.append((rtype, r.id, entry.id))
-                    o.write("{}\t{}\t{}\n".format(rtype, *relship[-1]))
+                    o.write("{}\t{}\t{}\n".format(rtype, *relship[-1][1:]))
 
     return (genes, isa, relship)
 
