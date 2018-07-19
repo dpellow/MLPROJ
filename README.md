@@ -1,12 +1,17 @@
 # MLPROJ
 
 Terminology:
+
 	* "dataset directory" - directory where datasets files are located (e.g. expression profiles, phenotype profiles etc.)
+
 	* "project directory" - directory where project files are located (e.g. cloned files and folders from git project)
 
 Directories Hierarchy:
+
 	* env - initiation, maintenance and configuration for project and datasets environments
+
 		* config - configuration files
+
 			* conf.json - main config file. 
 				BASE_PROFILE - make sure this field directs to datasets' base directory
 		* init - creation of dataset and python environment 
