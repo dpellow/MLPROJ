@@ -1,7 +1,7 @@
 ###
 # Download the GO database and gene2go annotations
 # Write out file with the GO hierarchy for human:
-# <child> \t <parent> \t <child-parent link>
+# <child-parent link> \t <child> \t <parent>
 # child to parent link can be: gene, is_a, part_of, [positively_/negatively_]regulates
 ###
 import time
@@ -12,7 +12,7 @@ import constants
 
 import wget, os
 
-def fetch_go_hierarcy():
+def fetch_go_hierarchy():
 
     obo_file_location = os.path.join(constants.GO_DIR,constants.GO_FILE_NAME)
     if not os.path.exists(os.path.join(constants.GO_DIR,constants.GO_FILE_NAME)):
@@ -23,10 +23,10 @@ def fetch_go_hierarcy():
     print "Downloading gene-GO associations"
     association_file_location = os.path.join(constants.GO_DIR,constants.GO_ASSOCIATION_FILE_NAME)
     if not os.path.exists(association_file_location):
-            wget.download(constants.GO_ASSOCIATION_GENE2GEO_URL, os.path.join(constants.GO_DIR,constants.GO_ASSOCIATION_FILE_NAME))
+	    association_file_location = download_ncbi_associations(association_file_location)
+#            wget.download(constants.GO_ASSOCIATION_GENE2GEO_URL, os.path.join(constants.GO_DIR,constants.GO_ASSOCIATION_FILE_NAME))
 
     print "Loading gene-GO associations"
-    # gene2go = download_ncbi_associations(obo_file_location) - why does this line needed?
     go2geneids_human = read_ncbi_gene2go(association_file_location, taxids=[9606], go2geneids=True)
 
 
@@ -56,7 +56,7 @@ def fetch_go_hierarcy():
                 rs = rels[rtype]
                 for r in rs:
                     relship.append((rtype, r.id, entry.id))
-                    o.write("{}\t{}\t{}\n".format(rtype, *relship[-1]))
+                    o.write("{}\t{}\t{}\n".format(rtype, *relship[-1][1:]))
 
     return (genes, isa, relship)
 
