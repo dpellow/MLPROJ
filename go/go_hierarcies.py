@@ -53,6 +53,7 @@ class WrHierGO(object):
 
     def ext_hier_down(self, goid, prt=sys.stdout):
         """Write hierarchy for all GO IDs below GO ID in arg, goid."""
+
         obj = _WrHierPrt(self, prt)
         obj.ext_hier_rec(goid)
         prt.write("VERTICES:\n")
@@ -110,6 +111,7 @@ class _WrHierPrt(object):
         self.go_marks = obj.usrdct['go_marks'] if 'go_marks' in obj.usrdct else set()
         self.concise_prt = 'concise' in obj.usrset
         self.indent = 'no_indent' not in obj.usrset
+        self.go2geneids = obj.usrdct.get('go2geneids')
         # vars
         self.prt = prt
         self.edges = {}
@@ -146,11 +148,12 @@ class _WrHierPrt(object):
         if self.max_indent is not None and depth > self.max_indent:
             return
         for child in ntobj.children:
-            if self.edges.has_key("{}={}".format(goid, child.id)):
-                self.edges["{}={}".format(goid, child.id)]["weight"] += 1
-            else:
-                self.edges["{}={}".format(goid, child.id)] = {"weight" : 0}
-            self.ext_hier_rec(child.id, depth)
+            if self.go2geneids.has_key(child.id) or True:
+                if self.edges.has_key("{}={}".format(goid, child.id)):
+                    self.edges["{}={}".format(goid, child.id)]["weight"] += 1
+                else:
+                    self.edges["{}={}".format(goid, child.id)] = {"weight" : 0}
+                self.ext_hier_rec(child.id, depth)
 
     def prt_hier_rec(self, goid, depth=1):
         """Write hierarchy for a GO Term record and all GO IDs down to the leaf level."""
@@ -271,10 +274,10 @@ def write_hier_all(gosubdag, out, root_term):
 #################################################################
 # Sub-routines to tests
 #################################################################
-def extract_hier_all(gosubdag, out, root_term):
+def extract_hier_all(gosubdag, out, root_term, go2geneids):
     """write_hier.py: Prints the entire mini GO hierarchy, with counts of children."""
     out.write('\nTEST EXTRACTION: Print all hierarchies:\n')
-    objwr = WrHierGO(gosubdag)
+    objwr = WrHierGO(gosubdag,  go2geneids=go2geneids)
     obj = objwr.ext_hier_down(root_term, out)
     return (obj.vertices, obj.edges)
 
@@ -325,8 +328,6 @@ def fetch_go_hierarcy():
     if not os.path.exists(os.path.join(constants.GO_DIR, constants.GO_FILE_NAME)):
         wget.download(constants.GO_OBO_URL, os.path.join(constants.GO_DIR, constants.GO_FILE_NAME))
 
-    go = obo_parser.GODag(obo_file_location, optional_attrs=['relationship'])  # also use
-
     print "Downloading gene-GO associations"
     association_file_location = os.path.join(constants.GO_DIR, constants.GO_ASSOCIATION_FILE_NAME)
     if not os.path.exists(association_file_location):
@@ -344,16 +345,19 @@ def fetch_go_hierarcy():
 # Driver
 #################################################################
 def build_hierarcy():
+
+    go2geneids, geneids2go = fetch_go_hierarcy()
+
     """Run numerous tests for various reports."""
     dag_fin = os.path.join(constants.GO_DIR, constants.GO_FILE_NAME)
     tic = timeit.default_timer()
-    godag = GODag(dag_fin)
+    godag = GODag(dag_fin, optional_attrs=['relationship'])
     gosubdag = GoSubDag(godag.keys(), godag)
     toc = timeit.default_timer()
     out = file(os.path.join(constants.BASE_PROFILE, "output", "go_hierarcy.txt"), "w+") # sys.stdout
     dict_result = {}
     for cur_term in ['GO:0005575']:
-        vertices, edges = extract_hier_all(gosubdag, out, cur_term)
+        vertices, edges = extract_hier_all(gosubdag, out, cur_term ,go2geneids)
         # write_hier_norep(gosubdag, out)
         # write_hier_lim(gosubdag, out)
         # write_hier_mrk(gosubdag, out)
@@ -361,7 +365,6 @@ def build_hierarcy():
         sys.stdout.write(msg)
         dict_result[cur_term] = {"vertices" : vertices, "edges": edges}
 
-    go2geneids, geneids2go = fetch_go_hierarcy()
     return dict_result, go2geneids, geneids2go, get_entrez2ensembl_dictionary()
 
 
