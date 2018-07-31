@@ -4,6 +4,7 @@ __copyright__ = "Copyright (C) 2016-2018, DV Klopfenstein, H Tang. All rights re
 __author__ = "DV Klopfenstein"
 
 import sys
+sys.path.insert(0, '../')
 import collections as cx
 from goatools.godag.consts import Consts
 from goatools.gosubdag.go_paths import GoPaths
