@@ -38,12 +38,12 @@ memory_limit()
 for cur_tested_file in ["protein_coding_long.txt"]:
     for cur_json in ["gender"]: #
 
-        for dataset in ["BRCA"]:
+        for dataset in ["UVM"]:
             meta_groups = None
             meta_groups=[json.load(file("groups/{}.json".format(cur_json)))]
 
             constants.update_dirs(CANCER_TYPE_u=dataset)
-            data_normalizaton = "fpkm_normalized_by_genes_l_inf_norm"
+            data_normalizaton = "fpkm" # "fpkm_normalized_by_genes_l_inf_norm"
             gene_expression_file_name, phenotype_file_name, survival_file_name, mutation_file_name, mirna_file_name, pval_preprocessing_file_name = build_gdc_params(dataset=dataset, data_normalizaton=data_normalizaton)
             tested_gene_list_file_name=  cur_tested_file # ""mir_warburg_{}_{}.txt".format(cur_dir, cur_suffix) # random_set_file_name #
             total_gene_list_file_name="protein_coding_long.txt"
@@ -59,9 +59,10 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             # vae_mesh_obj.build_mesh()
             # vae_mesh_obj.train_mesh(gene_expression_top_var_rotated, labels_assignment[0])
             roots = ['GO:0044429'] # ['GO:0005575']
-            dict_result, go2geneids, geneids2go, get_entrez2ensembl_dict = build_hierarcy(roots)
+            print roots[0]
+	    dict_result, go2geneids, geneids2go, get_entrez2ensembl_dict = build_hierarcy(roots)
             vae_go_obj = VAEgo(gene_expression_top_var_rotated.shape[1])
-            vae_go_obj.build_go(gene_expression_top_var_headers_rows, go2geneids, geneids2go, dict_result[0][roots[0]]['vertices'], dict_result[0][roots[0]]['edges'])
+            vae_go_obj.build_go(gene_expression_top_var_headers_rows, go2geneids, geneids2go, dict_result[roots[0]]['vertices'], dict_result[roots[0]]['edges'])
             # vae_obj.train_mesh(gene_expression_top_var_rotated, labels_assignment[0])
 
 

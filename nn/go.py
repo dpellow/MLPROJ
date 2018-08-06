@@ -30,11 +30,14 @@ class VAEgo:
     def build_go(self, gene_list, go2genes, genes2go, vertices, edges):
         input_layer = Input(shape=(self.original_dim,))
 
-        for cur_vertix in vertices:
-            if cur_vertix["isleaf"]:
-                indices = np.in1d([ensembl2entrez_convertor(x) for x in gene_list], go2genes[cur_vertix["cur_vertix"]])
-                cur_neuron = Lambda(lambda x: x[indices], output_shape=((1,)))(input_layer)
-                cur_vertix["neuron"] = cur_neuron
+        for k, v in vertices.iteritems():
+            if v["n_children"]==0:
+		entrez_ids = [ensembl2entrez_convertor([x]) for x in gene_list]
+		entrez_ids = np.array([y for x in entrez_ids for y in x])
+                indices = np.in1d(entrez_ids, go2genes[k])
+		print input_layer.get_shape().as_list()
+                cur_neuron = Lambda(lambda x: x[:,[True for x in range(x.get_shape().as_list()[1]) ]], output_shape=((1,)))(input_layer)
+                v["neuron"] = cur_neuron
 
         vertices_copy = vertices
         neuron_count=0

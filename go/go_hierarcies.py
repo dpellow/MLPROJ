@@ -139,7 +139,9 @@ class _WrHierPrt(object):
                                    "NS": ntgo.NS,
                                    "depth": [depth],
                                    "L" : ntgo.level,
-                                   "D" : ntgo.depth}
+                                   "D" : ntgo.depth,
+				   "obj" : ntobj,
+				   "n_children" : len(ntobj.children)}
 
         self.gos_printed.add(goid)
         # Do not extract hierarchy below this turn if it has already been printed
