@@ -54,7 +54,7 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             gene_expression_top_var_rotated = np.rot90(np.flip(gene_expression_top_var, 1), k=-1, axes=(1, 0))
             print "build nn:"
             vae_obj = VAE(gene_expression_top_var_rotated.shape[1])
-            vae_obj.load_mesh()
+            vae_obj.build_mesh()
             vae_obj.train_mesh(gene_expression_top_var_rotated, labels_assignment[0])
 
 

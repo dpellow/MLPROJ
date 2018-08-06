@@ -26,7 +26,7 @@ class VAE:
         return z_mean + K.exp(z_log_var / 2) * epsilon
 
 
-    def load_mesh(self):
+    def build_mesh(self):
         x = Input(shape=(self.original_dim,))
         h = Dense(intermediate_dim, activation='relu')(x)
         z_mean = Dense(latent_dim)(h)
