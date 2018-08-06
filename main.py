@@ -32,7 +32,7 @@ memory_limit()
 ############ PREDICTION_BY_MUTATION ###################
 # for cur_suffix in ["gt","g
 # ly","lac","tca"]:
-#     for cur_dir in ["high","l ow"]:
+#     for cur_dir in ["high","low"]:
 #
 for cur_tested_file in ["protein_coding_long.txt"]:
     for cur_json in ["gender"]: #
@@ -46,17 +46,18 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             gene_expression_file_name, phenotype_file_name, survival_file_name, mutation_file_name, mirna_file_name, pval_preprocessing_file_name = build_gdc_params(dataset=dataset, data_normalizaton=data_normalizaton)
             tested_gene_list_file_name=  cur_tested_file # ""mir_warburg_{}_{}.txt".format(cur_dir, cur_suffix) # random_set_file_name #
             total_gene_list_file_name="protein_coding_long.txt"
-            var_th_index = 10000
+            var_th_index = 15000
             filter_expression = None
             # filter_expression =  json.load(file("filters/{}.json".format(cur_json)))
             print "fetch tcga data from {}".format(dataset)
             gene_expression_top_var, gene_expression_top_var_headers_rows, gene_expression_top_var_headers_columns, labels_assignment, survival_dataset = load_tcga_data.load(tested_gene_list_file_name=tested_gene_list_file_name, total_gene_list_file_name=total_gene_list_file_name, gene_expression_file_name=gene_expression_file_name, phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name, var_th_index=var_th_index, filter_expression= filter_expression, meta_groups = meta_groups)
             gene_expression_top_var_rotated = np.rot90(np.flip(gene_expression_top_var, 1), k=-1, axes=(1, 0))
             print "build nn:"
+            print "nans: {}".format(np.count_nonzero(np.isnan(gene_expression_top_var_rotated)))
             vae_obj = VAE(gene_expression_top_var_rotated.shape[1])
             vae_obj.load_mesh()
             vae_obj.train_mesh(gene_expression_top_var_rotated, labels_assignment[0])
 
 
-            print "fetch go"
-            get_flat_go.fetch_go_hierarchy()
+            # print "fetch go"
+            # get_flat_go.fetch_go_hierarchy()

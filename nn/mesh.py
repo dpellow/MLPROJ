@@ -9,7 +9,6 @@ from keras import metrics
 
 batch_size = 10
 latent_dim = 2
-intermediate_dim = 10000
 epochs = 50
 epsilon_std = 1.0
 
@@ -18,6 +17,8 @@ class VAE:
     def __init__(self, original_dim):
         self.vae=None
         self.original_dim = original_dim
+        self.intermediate_dim = original_dim/2
+
 
     def sampling(self, args):
         z_mean, z_log_var = args
@@ -28,14 +29,14 @@ class VAE:
 
     def load_mesh(self):
         x = Input(shape=(self.original_dim,))
-        h = Dense(intermediate_dim, activation='relu')(x)
+        h = Dense(self.intermediate_dim, activation='relu')(x)
         z_mean = Dense(latent_dim)(h)
         z_log_var = Dense(latent_dim)(h)
 
         z = Lambda(self.sampling, output_shape=(latent_dim,))([z_mean, z_log_var])
 
         # we instantiate these layers separately so as to reuse them later
-        decoder_h = Dense(intermediate_dim, activation='relu')
+        decoder_h = Dense(self.intermediate_dim, activation='relu')
         decoder_mean = Dense(self.original_dim, activation='sigmoid')
         h_decoded = decoder_h(z)
         x_decoded_mean = decoder_mean(h_decoded)
@@ -48,10 +49,10 @@ class VAE:
 
         xent_loss = self.original_dim * metrics.binary_crossentropy(x, x_decoded_mean) # self.original_dim * metrics.mean_squared_error(x, x_decoded_mean)
         kl_loss = - 0.5 * K.sum(1 + z_log_var - K.square(z_mean) - K.exp(z_log_var), axis=-1)
-        vae_loss =  K.mean(xent_loss + kl_loss)
+        vae_loss = xent_loss # K.mean(xent_loss + kl_loss)
 
         self.vae.add_loss(vae_loss)
-        self.vae.compile(optimizer='rmsprop')
+        self.vae.compile(optimizer='adam') # rmsprop
         self.vae.summary()
 
     def train_mesh(self, x_data, y_data):
