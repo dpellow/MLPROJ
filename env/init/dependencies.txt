@@ -10,3 +10,5 @@ openpyxl
 mord
 lifelines
 spm1d
+keras
+tensorflow

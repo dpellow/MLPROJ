@@ -365,7 +365,6 @@ def build_hierarcy():
         msg = "Elapsed HMS: {}\n\n".format(str(datetime.timedelta(seconds=(toc-tic))))
         sys.stdout.write(msg)
         dict_result[cur_term] = {"vertices" : vertices, "edges": edges}
-
     return dict_result, go2geneids, geneids2go, get_entrez2ensembl_dictionary()
 
 
