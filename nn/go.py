@@ -14,7 +14,7 @@ intermediate_dim = 10000
 epochs = 50
 epsilon_std = 1.0
 
-class VAE:
+class VAEgo:
 
     def __init__(self, original_dim):
         self.vae=None
@@ -27,7 +27,7 @@ class VAE:
         return z_mean + K.exp(z_log_var / 2) * epsilon
 
 
-    def build_mesh(self, gene_list, go2genes, genes2go, vertices, edges):
+    def build_go(self, gene_list, go2genes, genes2go, vertices, edges):
         input_layer = Input(shape=(self.original_dim,))
 
         for cur_vertix in vertices:
@@ -83,7 +83,7 @@ class VAE:
         # self.vae.compile(optimizer='rmsprop')
         # self.vae.summary()
 
-    def train_mesh(self, x_data, y_data):
+    def train_go(self, x_data, y_data):
         # train the VAE on MNIST digits
 
         ratio = int(math.floor(len(x_data) * 0.9))-82

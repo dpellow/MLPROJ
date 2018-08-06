@@ -4,7 +4,8 @@ import constants
 from tcga import load_tcga_data
 from utils.param_builder import *
 from go import get_flat_go
-from nn.mesh import VAE
+from nn.mesh import VAEmesh
+from nn.go import VAEgo
 import numpy as np
 
 import sys
@@ -54,9 +55,12 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             gene_expression_top_var_rotated = np.rot90(np.flip(gene_expression_top_var, 1), k=-1, axes=(1, 0))
             print "build nn:"
             print "nans: {}".format(np.count_nonzero(np.isnan(gene_expression_top_var_rotated)))
-            vae_obj = VAE(gene_expression_top_var_rotated.shape[1])
-            vae_obj.load_mesh()
-            vae_obj.train_mesh(gene_expression_top_var_rotated, labels_assignment[0])
+            # vae_obj = VAEmesh(gene_expression_top_var_rotated.shape[1])
+            # vae_obj.build_mesh()
+            # vae_obj.train_mesh(gene_expression_top_var_rotated, labels_assignment[0])
+            vae_obj = VAEgo(gene_expression_top_var_rotated.shape[1])
+            vae_obj.build_go()
+            # vae_obj.train_mesh(gene_expression_top_var_rotated, labels_assignment[0])
 
 
             # print "fetch go"

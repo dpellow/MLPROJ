@@ -12,7 +12,7 @@ latent_dim = 2
 epochs = 50
 epsilon_std = 1.0
 
-class VAE:
+class VAEmesh:
 
     def __init__(self, original_dim):
         self.vae=None
