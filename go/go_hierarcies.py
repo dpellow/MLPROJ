@@ -345,7 +345,7 @@ def fetch_go_hierarcy():
 #################################################################
 # Driver
 #################################################################
-def build_hierarcy():
+def build_hierarcy(roots=['GO:0005575']):
 
     go2geneids, geneids2go = fetch_go_hierarcy()
 
@@ -357,7 +357,7 @@ def build_hierarcy():
     toc = timeit.default_timer()
     out = file(os.path.join(constants.BASE_PROFILE, "output", "go_hierarcy.txt"), "w+") # sys.stdout
     dict_result = {}
-    for cur_term in ['GO:0005575']:
+    for cur_term in roots:
         vertices, edges = extract_hier_all(gosubdag, out, cur_term ,go2geneids)
         # write_hier_norep(gosubdag, out)
         # write_hier_lim(gosubdag, out)

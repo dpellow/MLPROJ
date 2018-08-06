@@ -7,7 +7,7 @@ from go import get_flat_go
 from nn.mesh import VAEmesh
 from nn.go import VAEgo
 import numpy as np
-
+from go.go_hierarcies import build_hierarcy
 import sys
 import resource
 
@@ -55,11 +55,13 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             gene_expression_top_var_rotated = np.rot90(np.flip(gene_expression_top_var, 1), k=-1, axes=(1, 0))
             print "build nn:"
             print "nans: {}".format(np.count_nonzero(np.isnan(gene_expression_top_var_rotated)))
-            # vae_obj = VAEmesh(gene_expression_top_var_rotated.shape[1])
-            # vae_obj.build_mesh()
-            # vae_obj.train_mesh(gene_expression_top_var_rotated, labels_assignment[0])
-            vae_obj = VAEgo(gene_expression_top_var_rotated.shape[1])
-            vae_obj.build_go()
+            # vae_mesh_obj = VAEmesh(gene_expression_top_var_rotated.shape[1])
+            # vae_mesh_obj.build_mesh()
+            # vae_mesh_obj.train_mesh(gene_expression_top_var_rotated, labels_assignment[0])
+            roots = ['GO:0005575']
+            dict_result, go2geneids, geneids2go, get_entrez2ensembl_dict = build_hierarcy(roots)
+            vae_go_obj = VAEgo(gene_expression_top_var_rotated.shape[1])
+            vae_go_obj.build_go(gene_expression_top_var_headers_rows, go2geneids, geneids2go, dict_result[0]['GO:0005575']['vertices'], dict_result[0]['GO:0005575']['edges'])
             # vae_obj.train_mesh(gene_expression_top_var_rotated, labels_assignment[0])
 
 
