@@ -47,7 +47,7 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             gene_expression_file_name, phenotype_file_name, survival_file_name, mutation_file_name, mirna_file_name, pval_preprocessing_file_name = build_gdc_params(dataset=dataset, data_normalizaton=data_normalizaton)
             tested_gene_list_file_name=  cur_tested_file # ""mir_warburg_{}_{}.txt".format(cur_dir, cur_suffix) # random_set_file_name #
             total_gene_list_file_name="protein_coding_long.txt"
-            var_th_index = 15000
+            var_th_index = 150
             filter_expression = None
             # filter_expression =  json.load(file("filters/{}.json".format(cur_json)))
             print "fetch tcga data from {}".format(dataset)
@@ -58,7 +58,7 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             # vae_mesh_obj = VAEmesh(gene_expression_top_var_rotated.shape[1])
             # vae_mesh_obj.build_mesh()
             # vae_mesh_obj.train_mesh(gene_expression_top_var_rotated, labels_assignment[0])
-            roots = ['GO:0044429'] # ['GO:0005575']
+            roots = ['GO:0005575'] # ['GO:0044429']
             print roots[0]
 	    dict_result, go2geneids, geneids2go, get_entrez2ensembl_dict = build_hierarcy(roots)
             vae_go_obj = VAEgo(gene_expression_top_var_rotated.shape[1])

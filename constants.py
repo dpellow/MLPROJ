@@ -5,7 +5,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 PATH_TO_CONF = "env/config/conf.json"
 config_json = json.load(file(os.path.join(dir_path, PATH_TO_CONF)))
 
-USE_CACHE = False
+USE_CACHE = True
 PHENOTYPE_FORMAT = "GDC"
 DATASET_TYPE = "GDC-TCGA"
 CANCER_TYPE = "SKCM"
