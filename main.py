@@ -58,12 +58,12 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             # vae_mesh_obj = VAEmesh(gene_expression_top_var_rotated.shape[1])
             # vae_mesh_obj.build_mesh()
             # vae_mesh_obj.train_mesh(gene_expression_top_var_rotated, labels_assignment[0])
-            roots = ['GO:0005575'] # ['GO:0044429']
+            roots = ['GO:0044429'] # ['GO:0005575']
             print roots[0]
 	    dict_result, go2geneids, geneids2go, get_entrez2ensembl_dict = build_hierarcy(roots)
             vae_go_obj = VAEgo(gene_expression_top_var_rotated.shape[1])
             vae_go_obj.build_go(gene_expression_top_var_headers_rows, go2geneids, geneids2go, dict_result[roots[0]]['vertices'], dict_result[roots[0]]['edges'])
-            # vae_obj.train_mesh(gene_expression_top_var_rotated, labels_assignment[0])
+            vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, labels_assignment[0])
 
 
             # print "fetch go"
