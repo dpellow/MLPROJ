@@ -3,20 +3,20 @@ import json
 import constants
 from tcga import load_tcga_data
 from utils.param_builder import *
-# from go import get_flat_go
-# from nn.mesh import VAEmesh
-# from nn.go import VAEgo
+from go import get_flat_go
+from nn.mesh import VAEmesh
+from nn.go import VAEgo
 import numpy as np
 from go.go_hierarcies import build_hierarcy
 
 from constants import app_config
 import sys
-# import resource
+import resource
 
-# def memory_limit():
-#     soft, hard = resource.getrlimit(resource.RLIMIT_AS)
-#     resource.setrlimit(resource.RLIMIT_AS, (get_memory() * 1024 *0.9, hard))
-#     print "max memory allowed: {}".format((get_memory() /1024.) *0.9)
+def memory_limit():
+    soft, hard = resource.getrlimit(resource.RLIMIT_AS)
+    resource.setrlimit(resource.RLIMIT_AS, (get_memory() * 1024 *0.9, hard))
+    print "max memory allowed: {}".format((get_memory() /1024.) *0.9)
 
 
 def get_memory():
@@ -28,7 +28,7 @@ def get_memory():
                 free_memory += int(sline[1])
     return free_memory
 
-# memory_limit()
+memory_limit()
 
 
 
@@ -63,9 +63,9 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             roots = [app_config['root']] # ''GO:0005575']] # ['GO:0044429']
             print roots[0]
 	    dict_result, go2geneids, geneids2go, get_entrez2ensembl_dict = build_hierarcy(roots)
-            # vae_go_obj = VAEgo(gene_expression_top_var_rotated.shape[1])
-            # vae_go_obj.build_go(gene_expression_top_var_headers_rows, go2geneids, geneids2go, dict_result[roots[0]]['vertices'], dict_result[roots[0]]['edges'])
-            # vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, labels_assignment[0])
+            vae_go_obj = VAEgo(gene_expression_top_var_rotated.shape[1])
+            vae_go_obj.build_go(gene_expression_top_var_headers_rows, go2geneids, geneids2go, dict_result[roots[0]]['vertices'], dict_result[roots[0]]['edges'])
+            vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, labels_assignment[0])
 
 
             # print "fetch go"
