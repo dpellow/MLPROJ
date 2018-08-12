@@ -5,6 +5,8 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 PATH_TO_CONF = "env/config/conf.json"
 config_json = json.load(file(os.path.join(dir_path, PATH_TO_CONF)))
 
+app_config = json.load(file("config/app_config.json"))
+
 USE_CACHE = True
 PHENOTYPE_FORMAT = "GDC"
 DATASET_TYPE = "GDC-TCGA"

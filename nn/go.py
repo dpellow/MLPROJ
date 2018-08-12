@@ -9,6 +9,7 @@ from utils.ensembl2entrez import entrez2ensembl_convertor
 from keras.utils import plot_model
 from keras.models import Model
 from keras import metrics
+from constants import app_config
 
 batch_size = 8
 latent_dim = 2
@@ -45,7 +46,7 @@ class VAEgo:
         print "connect input layer to GO leafs"
         for k, v in vertices.iteritems():
             cur_layer = []
-            if v["n_children"]==0:
+            if v["n_children"]==0 or True: # probably genes would be connect to upper layers
                 for cur_entrez in go2genes[k]:
                     if not genes2input.has_key(cur_entrez):
                         e2e_id = entrez2ensembl_convertor([cur_entrez])
@@ -58,9 +59,9 @@ class VAEgo:
                 go_name = regex.sub( "_", v["name"])
 
                 if len(cur_layer) == 1:
-                    v["neuron_converged"]=Dense(1, activation='relu', name=go_name)(cur_layer[0])
+                    v["neuron_converged"]=Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)(cur_layer[0])
                 if len(cur_layer) >1:
-                    v["neuron_converged"] = Dense(1, activation='relu', name=go_name)(concatenate(cur_layer))
+                    v["neuron_converged"] = Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)(concatenate(cur_layer))
 
 
         print "connect intermediate converged GO layers"
@@ -79,11 +80,11 @@ class VAEgo:
                     inputs = [vertices[cur_child.id]["neuron_converged"] for cur_child in v["obj"].children if vertices[cur_child.id].has_key("neuron_converged")]
                     go_name = regex.sub("_", v["name"]+"_converged")
                     if len(inputs)==1:
-                        v["neuron_converged"] = Dense(1, activation='relu', name=go_name)(inputs[0])
+                        v["neuron_converged"] = Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)(inputs[0])
                         neuron_count += 1
                         is_converged = False
                     if len(inputs)>1:
-                        v["neuron_converged"] = Dense(1, activation='relu', name=go_name)(concatenate(inputs))
+                        v["neuron_converged"] = Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)(concatenate(inputs))
                         neuron_count+=1
                         is_converged = False
         print "intermediate layers have {} neurons".format(neuron_count)
@@ -104,11 +105,11 @@ class VAEgo:
                 inputs = [vertices[cur_parent]["neuron_diverged"] for cur_parent in v["obj"]._parents if vertices.has_key(cur_parent) and vertices[cur_parent].has_key("neuron_diverged")]
                 go_name = regex.sub("_", v["name"]+"_diverged")
                 if len(inputs)==1:
-                    v["neuron_diverged"] = Dense(1, activation='relu', name=go_name)(inputs[0])
+                    v["neuron_diverged"] = Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)(inputs[0])
                     neuron_count += 1
                     is_converged = False
                 if len(inputs)>1:
-                    v["neuron_diverged"] = Dense(1, activation='relu', name=go_name)(concatenate(inputs))
+                    v["neuron_diverged"] = Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)(concatenate(inputs))
                     neuron_count+=1
                     is_converged = False
 
@@ -128,9 +129,9 @@ class VAEgo:
                 if vertices.has_key(cur_go_term) and len(vertices[cur_go_term]["obj"].children) ==0:
                     neuron_parents.append(vertices[cur_go_term]["neuron_diverged"])
             if len(neuron_parents)==1:
-                genes2output[k]=Dense(1, activation='relu', name="{}_{}_{}".format(e2e_id[0],str(k),"output"))(neuron_parents[0])
+                genes2output[k]=Dense(app_config["number_of_neurons"], activation=app_config["activation_function"], name="{}_{}_{}".format(e2e_id[0],str(k),"output"))(neuron_parents[0])
             if len(neuron_parents)>1:
-                genes2output[k]=Dense(1, activation='relu', name="{}_{}_{}".format(e2e_id[0],str(k),"output"))(concatenate(neuron_parents))
+                genes2output[k]=Dense(app_config["number_of_neurons"], activation=app_config["activation_function"], name="{}_{}_{}".format(e2e_id[0],str(k),"output"))(concatenate(neuron_parents))
 
 
         # self.vae = Model([v for k,v in genes2input.iteritems()], root['neuron_converged'])
@@ -143,7 +144,7 @@ class VAEgo:
 
         # concatenated_inputs = concatenate(model_inputs)
         # concatenated_outputs = concatenate(model_outputs)
-        
+
         self.vae = Model(model_inputs, model_outputs) # concatenated_outputs
 
         for i in range(len(model_inputs)):
