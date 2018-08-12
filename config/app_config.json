@@ -1,10 +1,11 @@
 {
-  "root" : "GO:0005575",
+  "root" : ["GO:0044429"],
   "datasets" : ["UVM"],
   "data_normalizaton" : "fpkm",
   "var_th_index" : 150,
   "total_gene_list_file_name" : "protein_coding_long.txt",
-  "number_of_neurons": 10,
-  "activation_function" : "relu"
+  "number_of_neurons": 4,
+  "activation_function" : "relu",
+  "go_separator" : ""
 
 }

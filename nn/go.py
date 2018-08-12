@@ -30,7 +30,7 @@ class VAEgo:
 
 
     def build_go(self, gene_list, go2genes, genes2go, vertices, edges):
-        regex = re.compile(r"[\s, \,, \+, \:, \- ,\(,\, '\)]", re.IGNORECASE)
+        regex = re.compile(r"[\s, \,, \+, \:, \- ,\(,\, \), \' , \[ , \], \=]", re.IGNORECASE)
         count=0
         gene_list = [x[:x.index(".")] for x in gene_list]
         genes2input = {}
@@ -54,40 +54,46 @@ class VAEgo:
                             genes2input[cur_entrez] = Input(shape=(1,), name="{}_{}_{}".format(e2e_id[0], str(cur_entrez), "input"))
 
                     if genes2input.has_key(cur_entrez):
-                        cur_layer.append(genes2input[cur_entrez])
+                        cur_layer.append(cur_entrez)
 
-                go_name = regex.sub( "_", v["name"])
+                go_name = regex.sub( app_config["go_separator"], v["name"])+"_converged"
 
                 if len(cur_layer) == 1:
-                    v["neuron_converged"]=Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)(cur_layer[0])
+                    v["neuron_converged"]=Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)
+                    v["neuron_converged_inputs"] = cur_layer
                 if len(cur_layer) >1:
-                    v["neuron_converged"] = Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)(concatenate(cur_layer))
+                    v["neuron_converged"] = Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)
+                    v["neuron_converged_inputs"] = cur_layer
 
 
         print "connect intermediate converged GO layers"
         neuron_count=0
-        is_converged=False
-        while not is_converged:
-            is_converged = True
-            for k, v  in sorted([(k, v) for k, v in vertices.iteritems()], key=lambda x: max(x[1]["depth"]), reverse=True):
-                if v.has_key("neuron_converged"):
-                    continue
-                is_connectable = True
-                # for cur_child in v["obj"].children:
-                #     if not vertices[cur_child.id].has_key("neuron"):
-                #         is_connectable = False
-                if is_connectable:
-                    inputs = [vertices[cur_child.id]["neuron_converged"] for cur_child in v["obj"].children if vertices[cur_child.id].has_key("neuron_converged")]
-                    go_name = regex.sub("_", v["name"]+"_converged")
-                    if len(inputs)==1:
-                        v["neuron_converged"] = Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)(inputs[0])
-                        neuron_count += 1
-                        is_converged = False
-                    if len(inputs)>1:
-                        v["neuron_converged"] = Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)(concatenate(inputs))
-                        neuron_count+=1
-                        is_converged = False
+
+        for k, v  in sorted([(k, v) for k, v in vertices.iteritems()], key=lambda x: max(x[1]["depth"]), reverse=True):
+            if not v.has_key("neuron_converged"):
+                go_name = regex.sub(app_config["go_separator"], v["name"] + "_converged")
+                v["neuron_converged"] = Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)
+                v["neuron_converged_inputs"] = []
+
+            inputs = [cur_child.id for cur_child in v["obj"].children if vertices[cur_child.id].has_key("neuron_converged")]
+
+            v["neuron_converged_inputs"] = v["neuron_converged_inputs"] + inputs
+
         print "intermediate layers have {} neurons".format(neuron_count)
+
+        for k, v in sorted([(k, v) for k, v in vertices.iteritems()], key=lambda x: max(x[1]["depth"]), reverse=True):
+            if v.has_key("neuron_converged") and v.has_key("neuron_converged_inputs"):
+                inputs = [genes2input[x] for x in v["neuron_converged_inputs"] if genes2input.has_key(x)] + \
+                [vertices[x]["neuron_converged"] for x in v["neuron_converged_inputs"] if vertices.has_key(x)]
+                if len(inputs) == 0:
+                    del vertices[k]
+
+                if len(inputs)==1:
+                    v["neuron_converged"] = v["neuron_converged"](inputs[0])
+
+                if len(inputs)>1:
+                    v["neuron_converged"] = v["neuron_converged"](concatenate(inputs))
+
 
 
         root = vertices[[k for k, v in vertices.iteritems() if min(v["depth"]) == 1][0]]
@@ -103,7 +109,7 @@ class VAEgo:
                 if v.has_key("neuron_diverged"):
                     continue
                 inputs = [vertices[cur_parent]["neuron_diverged"] for cur_parent in v["obj"]._parents if vertices.has_key(cur_parent) and vertices[cur_parent].has_key("neuron_diverged")]
-                go_name = regex.sub("_", v["name"]+"_diverged")
+                go_name = regex.sub(app_config["go_separator"], v["name"]+"_diverged")
                 if len(inputs)==1:
                     v["neuron_diverged"] = Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)(inputs[0])
                     neuron_count += 1
@@ -126,12 +132,12 @@ class VAEgo:
             if len(e2e_id) == 0 or e2e_id[0] not in gene_list: continue
             neuron_parents = []
             for cur_go_term in genes2go[k]:
-                if vertices.has_key(cur_go_term) and len(vertices[cur_go_term]["obj"].children) ==0:
+                if vertices.has_key(cur_go_term): # and len(vertices[cur_go_term]["obj"].children) ==0:
                     neuron_parents.append(vertices[cur_go_term]["neuron_diverged"])
             if len(neuron_parents)==1:
-                genes2output[k]=Dense(app_config["number_of_neurons"], activation=app_config["activation_function"], name="{}_{}_{}".format(e2e_id[0],str(k),"output"))(neuron_parents[0])
+                genes2output[k]=Dense(1, activation=app_config["activation_function"], name="{}_{}_{}".format(e2e_id[0],str(k),"output"))(neuron_parents[0])
             if len(neuron_parents)>1:
-                genes2output[k]=Dense(app_config["number_of_neurons"], activation=app_config["activation_function"], name="{}_{}_{}".format(e2e_id[0],str(k),"output"))(concatenate(neuron_parents))
+                genes2output[k]=Dense(1, activation=app_config["activation_function"], name="{}_{}_{}".format(e2e_id[0],str(k),"output"))(concatenate(neuron_parents))
 
 
         # self.vae = Model([v for k,v in genes2input.iteritems()], root['neuron_converged'])
