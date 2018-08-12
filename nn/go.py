@@ -94,10 +94,13 @@ class VAEgo:
                 if len(inputs)>1:
                     v["neuron_converged"] = v["neuron_converged"](concatenate(inputs))
 
+        roots = [vertices[x] for x in [k for k, v in vertices.iteritems() if min(v["depth"]) == 1]]
+        if app_config["is_variational"]:
+            pass
+        else:
+            for r in roots: r['neuron_diverged'] = r['neuron_converged']
 
 
-        root = vertices[[k for k, v in vertices.iteritems() if min(v["depth"]) == 1][0]]
-        root['neuron_diverged'] = root['neuron_converged']
 
         print "connect intermediate diverged GO layers"
         neuron_count=0
@@ -127,7 +130,7 @@ class VAEgo:
 
         for k, v in genes2go.iteritems():
             count += 1
-            print count
+    #        print count
             e2e_id = entrez2ensembl_convertor([k])
             if len(e2e_id) == 0 or e2e_id[0] not in gene_list: continue
             neuron_parents = []
@@ -214,11 +217,3 @@ class VAEgo:
                 epochs=epochs,
                 batch_size=batch_size,
                 validation_data=([x for x in x_test.T], None))
-
-
-
-
-
-
-
-
