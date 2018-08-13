@@ -29,7 +29,7 @@ class VAEgo:
 
 
     def build_go(self, gene_list, go2genes, genes2go, vertices, edges):
-        regex = re.compile(r"[\s, \,, \+, \:, \- ,\(,\, \), \' , \[ , \], \=]", re.IGNORECASE)
+        regex = re.compile(r"[\s, \,, \+, \:, \- ,\(,\, \), \' , \[ , \], \=, \<, \>]", re.IGNORECASE)
         count=0
         gene_list = [x[:x.index(".")] for x in gene_list]
         genes2input = {}
@@ -57,12 +57,8 @@ class VAEgo:
 
                 go_name = regex.sub( app_config["go_separator"], v["name"])+"_converged"
 
-                if len(cur_layer) == 1:
-                    v["neuron_converged"]=Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)
-                    v["neuron_converged_inputs"] = cur_layer
-                if len(cur_layer) >1:
-                    v["neuron_converged"] = Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)
-                    v["neuron_converged_inputs"] = cur_layer
+                v["neuron_converged"]=Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)
+                v["neuron_converged_inputs"] = cur_layer
 
 
         print "connect intermediate converged GO layers"
