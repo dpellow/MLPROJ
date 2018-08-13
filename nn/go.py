@@ -12,7 +12,6 @@ from keras import metrics
 from constants import app_config
 
 batch_size = 8
-latent_dim = 2
 epochs = 50
 epsilon_std = 1.0
 
@@ -24,7 +23,7 @@ class VAEgo:
 
     def sampling(self, args):
         z_mean, z_log_var = args
-        epsilon = K.random_normal(shape=(K.shape(z_mean)[0], latent_dim), mean=0.,
+        epsilon = K.random_normal(shape=(K.shape(z_mean)[0], app_config["latent_dim"]), mean=0.,
                                   stddev=epsilon_std)
         return z_mean + K.exp(z_log_var / 2) * epsilon
 
@@ -96,7 +95,14 @@ class VAEgo:
 
         roots = [vertices[x] for x in [k for k, v in vertices.iteritems() if min(v["depth"]) == 1]]
         if app_config["is_variational"]:
-            pass
+            print "root and sampling layers"
+            inputs = [r["neuron_converged"] for r in roots]
+            z_mean = Dense(app_config["latent_dim"], name = "z_mean")(concatenate(inputs))
+            z_log_var = Dense(app_config["latent_dim"], name = "z_log_var")(concatenate(inputs))
+            z = Lambda(self.sampling, output_shape=(app_config["latent_dim"],), name='z')([z_mean, z_log_var])
+            for r in roots:
+                go_name = regex.sub(app_config["go_separator"], r["name"]+"_diverged")
+                r['neuron_diverged'] = Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)(z)
         else:
             for r in roots: r['neuron_diverged'] = r['neuron_converged']
 

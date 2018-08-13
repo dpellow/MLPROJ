@@ -4,9 +4,10 @@
   "data_normalizaton" : "fpkm",
   "var_th_index" : 150,
   "total_gene_list_file_name" : "protein_coding_long.txt",
-  "number_of_neurons": 20,
+  "number_of_neurons": 4,
+  "latent_dim" : 2,
   "activation_function" : "relu",
   "go_separator" : "",
-  "is_variational" : false
+  "is_variational" : true
 
 }
