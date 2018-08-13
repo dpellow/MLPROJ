@@ -7,6 +7,7 @@
   "number_of_neurons": 4,
   "latent_dim" : 2,
   "activation_function" : "relu",
+  "loss_function" : "cross_ent",
   "go_separator" : "",
   "is_variational" : true
 

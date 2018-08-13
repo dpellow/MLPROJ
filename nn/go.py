@@ -27,6 +27,9 @@ class VAEgo:
                                   stddev=epsilon_std)
         return z_mean + K.exp(z_log_var / 2) * epsilon
 
+#    def vae_loss():
+
+
 
     def build_go(self, gene_list, go2genes, genes2go, vertices, edges):
         regex = re.compile(r"[\s, \,, \+, \:, \- ,\(,\, \), \' , \[ , \], \=, \<, \>]", re.IGNORECASE)
@@ -153,13 +156,26 @@ class VAEgo:
             model_inputs.append(genes2input[k])
             model_outputs.append(genes2output[k])
 
-        # concatenated_inputs = concatenate(model_inputs)
-        # concatenated_outputs = concatenate(model_outputs)
+        assert len(model_inputs) == len(model_outputs), "different # of inputs and outputs"
+
+        concatenated_inputs = concatenate(model_inputs)
+        concatenated_outputs = concatenate(model_outputs)
 
         self.vae = Model(model_inputs, model_outputs) # concatenated_outputs
 
-        for i in range(len(model_inputs)):
-            self.vae.add_loss(metrics.binary_crossentropy(model_inputs[i], model_outputs[i]))
+        if app_config["loss_function"]=="mse":
+            reconstruction_loss = len(model_inputs)*metrics.mse(concatenated_inputs,concatenated_outputs)
+        if app_config["loss_function"]=="cross_ent":
+            reconstruction_loss = len(model_inputs)*metrics.binary_crossentropy(concatenated_inputs,concatenated_outputs)
+
+        if app_config["is_variational"]:
+            kl = 0.5 * K.sum(K.exp(z_log_var) + K.square(z_mean) - 1. - z_log_var, axis=1)
+            self.vae.add_loss(reconstruction_loss+kl) # weighting? average?
+
+        else:
+            self.vae.add_loss(reconstruction_loss)
+#            for i in range(len(model_inputs)):
+    #            self.vae.add_loss(metrics.binary_crossentropy(model_inputs[i], model_outputs[i]))
 
         # loss = metrics.binary_crossentropy(concatenated_inputs, concatenated_outputs)
         # loss = {}
