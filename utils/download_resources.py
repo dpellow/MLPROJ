@@ -31,7 +31,7 @@ def download(link, dir_name):
 def main():
     list_of_files_format = ["TCGA-{}.htseq_counts.tsv.gz","TCGA-{}.htseq_fpkm.tsv.gz","TCGA-{}.htseq_fpkm-uq.tsv.gz","TCGA-{}.GDC_phenotype.tsv.gz","TCGA-{}.survival.tsv.gz","TCGA-{}.mutect2_snv.tsv.gz", "TCGA-{}.mirna.tsv.gz"]
     for cur in constants.ALL_CANCER_TYPES:
-        if cur == "PANCAN": continue
+    #    if cur == "PANCAN": continue
         constants.update_dirs(CANCER_TYPE_u=cur)
         if not os.path.exists(constants.TCGA_DATA_DIR):
             os.makedirs(constants.TCGA_DATA_DIR)

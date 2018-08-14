@@ -96,8 +96,12 @@ class VAEgo:
         if app_config["is_variational"]:
             print "root and sampling layers"
             inputs = [r["neuron_converged"] for r in roots]
-            z_mean = Dense(app_config["latent_dim"], name = "z_mean")(concatenate(inputs))
-            z_log_var = Dense(app_config["latent_dim"], name = "z_log_var")(concatenate(inputs))
+            if len(inputs)> 1:
+                z_mean = Dense(app_config["latent_dim"], name = "z_mean")(concatenate(inputs))
+                z_log_var = Dense(app_config["latent_dim"], name = "z_log_var")(concatenate(inputs))
+            else:
+                z_mean = Dense(app_config["latent_dim"], name = "z_mean")(inputs[0])
+                z_log_var = Dense(app_config["latent_dim"], name = "z_log_var")(inputs[0])                
             z = Lambda(self.sampling, output_shape=(app_config["latent_dim"],), name='z')([z_mean, z_log_var])
             for r in roots:
                 go_name = regex.sub(app_config["go_separator"], r["name"]+"_diverged")
