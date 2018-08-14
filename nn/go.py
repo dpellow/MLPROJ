@@ -220,7 +220,9 @@ class VAEgo:
         for cur_col in input_data_sorted[1:]:
             concatenated_cols = np.c_[concatenated_cols, cur_col]
 
-
+        trimmer_index = (len(concatenated_cols)/10)*10
+        concatenated_cols=trimmer_index[:trimmer_index]
+        
         ratio = int(math.floor(len(concatenated_cols) * 0.9))
 
         x_train = np.array(concatenated_cols[:ratio]).astype(np.float32)
