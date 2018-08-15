@@ -101,7 +101,7 @@ class VAEgo:
                 z_log_var = Dense(app_config["latent_dim"], name = "z_log_var")(concatenate(inputs))
             else:
                 z_mean = Dense(app_config["latent_dim"], name = "z_mean")(inputs[0])
-                z_log_var = Dense(app_config["latent_dim"], name = "z_log_var")(inputs[0])                
+                z_log_var = Dense(app_config["latent_dim"], name = "z_log_var")(inputs[0])
             z = Lambda(self.sampling, output_shape=(app_config["latent_dim"],), name='z')([z_mean, z_log_var])
             for r in roots:
                 go_name = regex.sub(app_config["go_separator"], r["name"]+"_diverged")
@@ -221,9 +221,11 @@ class VAEgo:
             concatenated_cols = np.c_[concatenated_cols, cur_col]
 
         trimmer_index = (len(concatenated_cols)/10)*10
+
       	print "trimmer_index "+str(trimmer_index)
         concatenated_cols=concatenated_cols[:trimmer_index]
 	print "concatenated_cols "+str(len(concatenated_cols))        
+
         ratio = int(math.floor(len(concatenated_cols) * 0.9))
         print len(concatenated_cols[:ratio])
         print len(concatenated_cols[ratio:])
