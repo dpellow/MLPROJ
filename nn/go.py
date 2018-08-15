@@ -11,7 +11,7 @@ from keras.models import Model
 from keras import metrics
 from constants import app_config
 
-batch_size = 8
+batch_size = 10
 epochs = 50
 epsilon_std = 1.0
 
@@ -220,9 +220,14 @@ class VAEgo:
         for cur_col in input_data_sorted[1:]:
             concatenated_cols = np.c_[concatenated_cols, cur_col]
 
-
+        trimmer_index = (len(concatenated_cols)/10)*10
+      	print "trimmer_index "+str(trimmer_index)
+        concatenated_cols=concatenated_cols[:trimmer_index]
+	print "concatenated_cols "+str(len(concatenated_cols))        
         ratio = int(math.floor(len(concatenated_cols) * 0.9))
-
+        print len(concatenated_cols[:ratio])
+        print len(concatenated_cols[ratio:])
+        batch_size = len(concatenated_cols[ratio:])
         x_train = np.array(concatenated_cols[:ratio]).astype(np.float32)
         x_test = np.array(concatenated_cols[ratio:]).astype(np.float32)
 
