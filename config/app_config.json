@@ -2,14 +2,16 @@
   "root" : ["GO:0006090", "GO:0044429" ],
   "root_" : ["GO:0003674","GO:0005575"],
   "datasets" : ["PANCAN"],
-  "data_normalizaton" : "fpkm",
-  "var_th_index" : 150,
+  "data_normalizaton" : "fpkm_normalized_by_genes_l_inf_norm",
+  "var_th_index" : 2000,
   "total_gene_list_file_name" : "protein_coding_long.txt",
-  "number_of_neurons": 1,
-  "latent_dim" : 2,
+  "number_of_neurons": 100,
+  "latent_dim" : 50,
+  "num_of_epochs" : 1000,
   "activation_function" : "relu",
   "loss_function" : "cross_ent",
   "go_separator" : "Z",
-  "is_variational" : true
+  "is_variational" : true,
+  "use_cache" : true
 
 }

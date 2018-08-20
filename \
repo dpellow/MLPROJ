@@ -12,7 +12,7 @@ from keras import metrics
 from constants import app_config
 
 batch_size = 10
-epochs = app_config["num_of_epochs"] 
+epochs = 50
 epsilon_std = 1.0
 
 class VAEgo:
@@ -33,7 +33,6 @@ class VAEgo:
 
     def build_go(self, gene_list, go2genes, genes2go, vertices, edges):
         regex = re.compile(r"[\s, \,, \+, \:, \- ,\(,\, \), \' , \[ , \], \=, \<, \>]", re.IGNORECASE)
-        
         count=0
         gene_list = [x[:x.index(".")] for x in gene_list]
         genes2input = {}
@@ -64,7 +63,7 @@ class VAEgo:
                 v["neuron_converged"]=Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)
                 v["neuron_converged_inputs"] = cur_layer
 
-          
+
         print "connect intermediate converged GO layers"
         neuron_count=0
 
@@ -93,9 +92,7 @@ class VAEgo:
                 if len(inputs)>1:
                     v["neuron_converged"] = v["neuron_converged"](concatenate(inputs))
 
-        print [min(x["depth"]) for x in [v for k, v in vertices.iteritems()]]
         roots = [vertices[x] for x in [k for k, v in vertices.iteritems() if min(v["depth"]) == 1]]
-        print "num of roots: {}".format(len(roots))
         if app_config["is_variational"]:
             print "root and sampling layers"
             inputs = [r["neuron_converged"] for r in roots]
@@ -133,7 +130,7 @@ class VAEgo:
                     v["neuron_diverged"] = Dense(app_config["number_of_neurons"], activation=app_config['activation_function'], name=go_name)(concatenate(inputs))
                     neuron_count+=1
                     is_converged = False
-            print neuron_count
+
         print "intermediate layers have {} neurons".format(neuron_count)
 
 
@@ -150,9 +147,9 @@ class VAEgo:
                 if vertices.has_key(cur_go_term): # and len(vertices[cur_go_term]["obj"].children) ==0:
                     neuron_parents.append(vertices[cur_go_term]["neuron_diverged"])
             if len(neuron_parents)==1:
-                genes2output[k]=Dense(1, activation='sigmoid', name="{}_{}_{}".format(e2e_id[0],str(k),"output"))(neuron_parents[0])
+                genes2output[k]=Dense(1, activation=app_config["activation_function"], name="{}_{}_{}".format(e2e_id[0],str(k),"output"))(neuron_parents[0])
             if len(neuron_parents)>1:
-                genes2output[k]=Dense(1, activation='sigmoid', name="{}_{}_{}".format(e2e_id[0],str(k),"output"))(concatenate(neuron_parents))
+                genes2output[k]=Dense(1, activation=app_config["activation_function"], name="{}_{}_{}".format(e2e_id[0],str(k),"output"))(concatenate(neuron_parents))
 
 
         # self.vae = Model([v for k,v in genes2input.iteritems()], root['neuron_converged'])
@@ -177,7 +174,7 @@ class VAEgo:
 
         if app_config["is_variational"]:
             kl = -0.5 * K.sum(1 + z_log_var - K.exp(z_log_var) - K.square(z_mean), axis=1)
-            self.vae.add_loss(K.mean(reconstruction_loss+kl)) # weighting? average?
+            self.vae.add_loss(reconstruction_loss+kl) # weighting? average?
 
         else:
             self.vae.add_loss(reconstruction_loss)
@@ -193,16 +190,11 @@ class VAEgo:
 
 
         self.vae.compile(optimizer='rmsprop') # , loss=loss
-        print "number of inputs: {}".format(len(model_inputs))
-        print "number of outputs: {}".format(len(model_outputs))
-
         plot_model(self.vae, to_file=os.path.join(constants.OUTPUT_GLOBAL_DIR, "model.svg"))
 
 
 
     def train_go(self, header_ensembl_ids, gene_expression_data, y_data):
-        print "start training.."
-        print gene_expression_data[0]
         # train the VAE on MNIST digits
         header_ensembl_ids = [x[:x.index(".")] for x in header_ensembl_ids]
         input_ids = []
@@ -238,8 +230,8 @@ class VAEgo:
         print len(concatenated_cols[:ratio])
         print len(concatenated_cols[ratio:])
         batch_size = len(concatenated_cols[ratio:])
-        x_train = np.array(concatenated_cols[:ratio]).astype(np.float64)
-        x_test = np.array(concatenated_cols[ratio:]).astype(np.float64)
+        x_train = np.array(concatenated_cols[:ratio]).astype(np.float32)
+        x_test = np.array(concatenated_cols[ratio:]).astype(np.float32)
 
         y_train = np.array(y_data[:ratio]).astype(np.int32)
         y_test = np.array(y_data[ratio:]).astype(np.int32)
@@ -248,16 +240,9 @@ class VAEgo:
         #         epochs=epochs,
         #         batch_size=batch_size,
         #         validation_data=([x for x in x_test.T], y_test))
-       
-        
+
         self.vae.fit([x for x in x_train.T],
                 shuffle=True,
                 epochs=epochs,
                 batch_size=batch_size,
                 validation_data=([x for x in x_test.T], None))
- 
-        # print x_test.T[:3]
-        # pred = [x for x in x_test.T]
-        # pred = [np.array([y[0] for y in pred]), np.array([y[1] for y in pred]), np.array([y[2] for y in pred])]
-        # print pred
-        # print self.vae.predict(pred)

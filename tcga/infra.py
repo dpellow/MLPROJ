@@ -71,7 +71,7 @@ def load_gene_expression_profile(gene_list_file_name, gene_expression_file_name,
         stopwatch.start()
         expression_profiles_filtered = np.flip(np.rot90(expression_profiles_filtered, k=1, axes=(1,0)),1)
         print stopwatch.stop("done rotate gene expression")
-
+    
     return expression_profiles_filtered
 
 
@@ -255,7 +255,7 @@ def separate_headers(dataset, is_numbers=True):
     dataset = dataset[1:]
     dataset = dataset[:, 1:]
     if is_numbers:
-        dataset = dataset.astype(np.float32)
+        dataset = dataset.astype(np.float64)
     return dataset_headers_rows, dataset_headers_columns, dataset
 
 def load_integrated_mutation_data(mutation_file_name,
@@ -278,7 +278,7 @@ def load_integrated_mutation_data(mutation_file_name,
         mutations_headers_rows, mutations_headers_columns, mutation_dataset = separate_headers(
             mutation_dataset, is_numbers=False)
 
-    if constants.USE_CACHE:
+    if constants.USE_CACHE or True:
         if not os.path.exists(cache_path):
             os.makedirs(cache_path)
         print "saving data to cahce"
@@ -349,11 +349,13 @@ def load_integrated_ge_data(tested_gene_list_file_name, total_gene_list_file_nam
         tested_gene_expression = np.array(
             load_gene_expression_profile_by_genes(tested_gene_list_file_name, gene_expression_file_name,
                                                   gene_filter_file_name))
+        
+        
         print "separating dataset headers"
         tested_gene_expression_headers_rows, tested_gene_expression_headers_columns, tested_gene_expression = separate_headers(
             tested_gene_expression)
 
-    if constants.USE_CACHE:
+    if constants.USE_CACHE or True:
         if not os.path.exists(cache_path):
             os.makedirs(cache_path)
         print "saving data to cahce"
@@ -395,7 +397,9 @@ def load_integrated_ge_data(tested_gene_list_file_name, total_gene_list_file_nam
         print "clustering patients by groups"
         labels_assignment =  labels_assignments(meta_groups, phenotype_file_name,
                                                tested_gene_expression_headers_columns)
-
+    
+    #print "loaded GE:"
+    #print tested_gene_expression
     if var_th_index is not None:
         print "filtering top vars"
         tested_gene_expression, tested_gene_expression_headers_rows, tested_gene_expression_headers_columns = filter_top_var_genes(

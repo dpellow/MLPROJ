@@ -53,8 +53,14 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             filter_expression = None
             # filter_expression =  json.load(file("filters/{}.json".format(cur_json)))
             print "fetch tcga data from {}".format(dataset)
+            print "data normalization: {}".format(gene_expression_file_name)
             gene_expression_top_var, gene_expression_top_var_headers_rows, gene_expression_top_var_headers_columns, labels_assignment, survival_dataset = load_tcga_data.load(tested_gene_list_file_name=tested_gene_list_file_name, total_gene_list_file_name=total_gene_list_file_name, gene_expression_file_name=gene_expression_file_name, phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name, var_th_index=var_th_index, filter_expression= filter_expression, meta_groups = meta_groups)
+            
+            # print "before rotation:"
+            # print gene_expression_top_var
             gene_expression_top_var_rotated = np.rot90(np.flip(gene_expression_top_var, 1), k=-1, axes=(1, 0))
+            # print "after rotation:"
+            # print gene_expression_top_var_rotated
             print "build nn:"
             print "nans: {}".format(np.count_nonzero(np.isnan(gene_expression_top_var_rotated)))
             # vae_mesh_obj = VAEmesh(gene_expression_top_var_rotated.shape[1])

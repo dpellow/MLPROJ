@@ -7,7 +7,7 @@ config_json = json.load(file(os.path.join(dir_path, PATH_TO_CONF)))
 
 app_config = json.load(file(os.path.join(dir_path,"config/app_config.json")))
 
-USE_CACHE = True
+USE_CACHE = app_config['use_cache'] 
 PHENOTYPE_FORMAT = "GDC"
 DATASET_TYPE = "GDC-TCGA"
 CANCER_TYPE = "SKCM"
