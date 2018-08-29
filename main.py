@@ -9,6 +9,7 @@ from nn.go import VAEgo
 from nn.pca import pca_implement
 import numpy as np
 from go.go_hierarcies import build_hierarcy
+from survival_comparison.patients_clustering import find_clusters_and_survival
 
 from constants import app_config
 import sys
@@ -82,6 +83,21 @@ for cur_tested_file in ["protein_coding_long.txt"]:
 
             # PCA
             pca_implement(gene_expression_top_var_headers_rows_pca,gene_expression_top_var_rotated_pca, survival_dataset[:, 1])
+
+            # K-mean & survival
+            # start_k = 2
+            # end_k = 2
+            # clustering_algorithm = "euclidean"
+            # tested_gene_list_file_name = #PCA/VAE file#
+            # find_clusters_and_survival(reduced_dim_file_name=reduced_dim_file_name,
+            #                            total_gene_list_file_name=None,
+            #                            gene_expression_file_name=gene_expression_file_name,
+            #                            phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name,
+            #                            var_th_index=var_th_index, is_unsupervised=True, start_k=start_k,
+            #                            end_k=end_k, filter_expression=filter_expression, meta_groups=meta_groups,
+            #                            clustering_algorithm=clustering_algorithm)
+
+
 
             # print "fetch go"
             # get_flat_go.fetch_go_hierarchy()
