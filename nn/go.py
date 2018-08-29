@@ -3,6 +3,7 @@ import numpy as np
 import constants
 import os
 import math
+import pandas as pd
 import keras
 from keras.layers import Dense, Input, concatenate, Lambda
 from keras import backend as K
@@ -241,6 +242,9 @@ class VAEgo:
         # self.encoder.summary()
         plot_model(self.encoder, to_file=os.path.join(constants.OUTPUT_GLOBAL_DIR, "encoder.svg"))
 
+        # self.decoder = Model()
+
+        # Overall VAE model, for reconstruction and training
         self.vae = Model(model_inputs, model_outputs)  # concatenated_outputs
 
         if app_config["loss_function"] == "mse":
@@ -271,7 +275,8 @@ class VAEgo:
 
         plot_model(self.vae, to_file=os.path.join(constants.OUTPUT_GLOBAL_DIR, "model.svg"))
 
-    def train_go(self, header_ensembl_ids, gene_expression_data, y_data):
+    def train_go(self, header_ensembl_ids,gene_expression_data, patients_list,y_data):
+        print np.shape(gene_expression_data)
         print "start training.."
         print gene_expression_data[0]
         # train the VAE on MNIST digits
@@ -300,21 +305,26 @@ class VAEgo:
         for cur_col in input_data_sorted[1:]:
             concatenated_cols = np.c_[concatenated_cols, cur_col]
 
-        trimmer_index = (len(concatenated_cols) / 10) * 10
-
-        print "trimmer_index " + str(trimmer_index)
-        concatenated_cols = concatenated_cols[:trimmer_index]
-        print "concatenated_cols " + str(len(concatenated_cols))
+        # trimmer_index = (len(concatenated_cols) / 10) * 10
+        # # if app_config["split_data"]:
+        # print "trimmer_index " + str(trimmer_index)
+        # concatenated_cols = concatenated_cols[:trimmer_index]
+        # print "concatenated_cols " + str(len(concatenated_cols))
 
         ratio = int(math.floor(len(concatenated_cols) * 0.9))
         print len(concatenated_cols[:ratio])
         print len(concatenated_cols[ratio:])
         batch_size = len(concatenated_cols[ratio:])
+        x_total = np.array(concatenated_cols).astype(np.float64)
         x_train = np.array(concatenated_cols[:ratio]).astype(np.float64)
         x_test = np.array(concatenated_cols[ratio:]).astype(np.float64)
-
         y_train = np.array(y_data[:ratio]).astype(np.int32)
         y_test = np.array(y_data[ratio:]).astype(np.int32)
+
+        # else:
+        #     x_train = np.array(concatenated_cols).astype(np.float64)
+        #     y_train = np.array(y_data).astype(np.int32)
+
         # self.vae.fit([x for x in x_train.T], y_train,
         #         shuffle=True,
         #         epochs=epochs,
@@ -332,15 +342,30 @@ class VAEgo:
         # functors = [K.function([inp], [out]) for out in outputs]
 
         history = LossHistory()
-        hist = self.vae.fit([x for x in x_train.T],
-                            shuffle=True,
-                            epochs=epochs,
-                            batch_size=batch_size,
-                            validation_data=([x for x in x_test.T], None),
-                            callbacks=[history])
+        if app_config["load_weights"]:
+            self.vae = self.vae.load_weights(os.path.join(constants.OUTPUT_GLOBAL_DIR, "VAE_weights.h5"))
+        else:
+            hist = self.vae.fit([x for x in x_train.T],
+                                shuffle=True,
+                                epochs=epochs,
+                                batch_size=batch_size,
+                                validation_data=([x for x in x_test.T], None),
+                                callbacks=[history])
+            self.vae.save_weights(os.path.join(constants.OUTPUT_GLOBAL_DIR, "VAE_weights.h5"))
 
-        print(history.losses)
-        print(hist.history)
+        print np.shape(x_total)
+        latent_space = self.encoder.predict([x for x in x_total.T],batch_size=batch_size)
+        print np.shape(latent_space[2])
+
+        print "Saving VAE data.."
+        # x_projected = np.insert(x_projected,[0], np.array(app_config["latent_dim"]),axis = 0)
+        # np.save(os.path.join(constants.OUTPUT_GLOBAL_DIR, "PCA_compress.txt"), x_projected)
+        pca_data = pd.DataFrame(latent_space[2], index=patients_list, columns=range(app_config["latent_dim"]))
+        pca_data.index.name = 'VAE'
+        pca_data.to_csv(os.path.join(constants.OUTPUT_GLOBAL_DIR, "VAE_compress.tsv"), sep='\t')
+
+        # print(history.losses)
+        # print(hist.history)
 
 
         #### Test #####

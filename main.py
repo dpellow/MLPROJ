@@ -79,14 +79,14 @@ for cur_tested_file in ["protein_coding_long.txt"]:
                 edges_dict.update(dict_result[r]['edges'])
 
 
-            # VAE
+             # VAE
             vae_go_obj = VAEgo(gene_expression_top_var_rotated.shape[1])
             vae_go_obj.build_go(gene_expression_top_var_headers_rows, go2geneids, geneids2go, vertices_dict, edges_dict)
-            vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, survival_dataset[:, 1]) #vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, labels_assignment[1])
+            vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, gene_expression_top_var_headers_columns, survival_dataset[:, 1]) #vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, labels_assignment[1])
 
             # PCA
-            pca_implement(gene_expression_top_var_headers_rows_pca,gene_expression_top_var_rotated_pca, survival_dataset[:, 1])
-
+            pca_implement(gene_expression_top_var_headers_columns, gene_expression_top_var_rotated_pca, survival_dataset[:, 1])
+		
             # K-mean & survival
             # start_k = 2
             # end_k = 2
