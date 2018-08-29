@@ -1,5 +1,5 @@
 {
-  "root" : ["GO:0006090", "GO:0044429" ],
+  "root" : ["GO:0007005", "GO:0044429" ],
   "root_" : ["GO:0003674","GO:0005575"],
   "datasets" : ["PANCAN"],
   "data_normalizaton" : "fpkm_normalized_by_genes_l_inf_norm",
@@ -7,11 +7,13 @@
   "total_gene_list_file_name" : "protein_coding_long.txt",
   "number_of_neurons": 100,
   "latent_dim" : 50,
-  "num_of_epochs" : 1000,
+  "num_of_epochs" : 20,
   "activation_function" : "relu",
   "loss_function" : "cross_ent",
   "go_separator" : "Z",
   "is_variational" : true,
-  "use_cache" : true
+  "use_cache" : true,
+  "gene_list_pca" : "mitochondrion.txt",
+  "train" : true
 
 }
