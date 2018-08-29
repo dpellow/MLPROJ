@@ -56,10 +56,7 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             # filter_expression =  json.load(file("filters/{}.json".format(cur_json)))
             print "fetch tcga data from {}".format(dataset)
             gene_expression_top_var, gene_expression_top_var_headers_rows, gene_expression_top_var_headers_columns, labels_assignment, survival_dataset, gene_expression_top_var_pca, gene_expression_top_var_headers_rows_pca = load_tcga_data.load(tested_gene_list_file_name=tested_gene_list_file_name, total_gene_list_file_name=total_gene_list_file_name, gene_expression_file_name=gene_expression_file_name, gene_list_pca_name=gene_list_pca_name, phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name, var_th_index=var_th_index, filter_expression= filter_expression, meta_groups = meta_groups)
-	    if app_config['randomize']:
-	      gene_expression_top_var = np.random.permutation(gene_expression_top_var)
             gene_expression_top_var_rotated = np.rot90(np.flip(gene_expression_top_var, 1), k=-1, axes=(1, 0))
-
             gene_expression_top_var_rotated_pca = np.rot90(np.flip(gene_expression_top_var_pca, 1), k=-1, axes=(1, 0)) #pca genes
 
             print "build nn:"
@@ -86,6 +83,18 @@ for cur_tested_file in ["protein_coding_long.txt"]:
 
             # PCA
             pca_implement(gene_expression_top_var_headers_rows_pca,gene_expression_top_var_rotated_pca, survival_dataset[:, 1])
+
+	    # Randomly permuted VAE
+            avg = 0
+            for i in range(app_config["num_randomization"]):
+		gene_expression_top_var_permuted = np.random.permutation(gene_expression_top_var)
+                gene_expression_top_var_permuted_rotated = np.rot90(np.flip(gene_expression_top_var_permuted, 1), k=-1, axes=(1, 0))
+		### NEED TO ADD PARAM TO CHOOSE WHERE TO WRITE OUTPUT FILE
+                vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_permuted_rotated, survival_dataset[:, 1]) ### DO WE NEED TO RUN build_go AGAIN TOO??
+		### NEED TO OUTPUT SINGLE NUMBER FROM SURVIVAL (P-VALUE?)
+                ### avg += find_clusters_and_survival(#########
+	    avg /= app_config["num_randomization"]
+
 
             # K-mean & survival
             # start_k = 2
