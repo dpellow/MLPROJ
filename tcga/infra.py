@@ -407,7 +407,7 @@ def load_integrated_ge_data(tested_gene_list_file_name, total_gene_list_file_nam
     if constants.USE_CACHE:
         if not os.path.exists(cache_path):
             os.makedirs(cache_path)
-        print "saving data to cahce"
+        print "saving data to cache"
         np.save(os.path.join(cache_path, "header_rows.npy"), tested_gene_expression_headers_rows)
         np.save(os.path.join(cache_path, "header_columns.npy"), tested_gene_expression_headers_columns)
         np.save(os.path.join(cache_path, "data.npy"), tested_gene_expression)
