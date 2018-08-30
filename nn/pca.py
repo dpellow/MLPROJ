@@ -74,4 +74,3 @@ class PCA_obj:
     # plt.colorbar()
     # plt.savefig("test.png")
     # plt.cla()
-
