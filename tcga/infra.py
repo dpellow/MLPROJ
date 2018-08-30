@@ -380,7 +380,7 @@ def load_integrated_mutation_data(mutation_file_name,
 
 
 def load_integrated_ge_data(tested_gene_list_file_name, total_gene_list_file_name, gene_expression_file_name,gene_list_pca_name,
-                            survival_file_name, phenotype_file_name, gene_expression_path, gene_filter_file_name=None, filter_expression=None,
+                            survival_file_name, phenotype_file_name, gene_filter_file_name=None, gene_expression_path=None, filter_expression=None,
                             meta_groups=None, var_th_index=None):
     cache_path = os.path.join(constants.CACHE_DIR, "datasets",
                               "datasets_{}_{}".format(gene_expression_file_name.split(".")[0],
