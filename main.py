@@ -107,7 +107,7 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             # end_k = 2
             # clustering_algorithm = "euclidean"
             # tested_gene_list_file_name = #PCA/VAE file#
-            # find_clusters_and_survival(reduced_dim_file_name=reduced_dim_file_name,
+            # lr_results_global = find_clusters_and_survival(reduced_dim_file_name=reduced_dim_file_name,
             #                            total_gene_list_file_name=None,
             #                            gene_expression_file_name=gene_expression_file_name,
             #                            phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name,

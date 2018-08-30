@@ -32,14 +32,13 @@ def find_clusters_and_survival(reduced_dim_file_name, total_gene_list_file_name,
     gene_expression_top_var, gene_expression_top_var_headers_rows, gene_expression_top_var_headers_columns, labels_assignment, survival_dataset = data
 
     # plot_genes_statistic(gene_expression_top_var, gene_expression_top_var_headers_columns, tested_gene_list_file_name)
-
+    lr_results_global = []
     if is_unsupervised:
         clfs_results = find_clusters(end_k, gene_expression_top_var, gene_expression_top_var_headers_rows,
                                      start_k, e2g_convertor(gene_expression_top_var_headers_columns),
                                      reduced_dim_file_name, labels_assignment, clustering_algorithm=clustering_algorithm)
-
         for i in range(start_k,end_k+1):
-            pv = km_curve(clfs_results[i], survival_dataset[1:], gene_expression_top_var_headers_rows, reduced_dim_file_name.split(".")[0], i)
+            lr_results_global.append(km_curve(clfs_results[i], survival_dataset[1:], gene_expression_top_var_headers_rows, reduced_dim_file_name.split(".")[0], i))
             # B1 = ['TCGA-V4-A9E7-01A', 'TCGA-V4-A9E8-01A', 'TCGA-V4-A9EE-01A', 'TCGA-V4-A9EF-01A', 'TCGA-V4-A9EI-01A', 'TCGA-V4-A9EJ-01A', 'TCGA-V4-A9EK-01A', 'TCGA-V4-A9EL-01A', 'TCGA-V4-A9EQ-01A', 'TCGA-V4-A9ET-01A', 'TCGA-V4-A9EX-01A', 'TCGA-V4-A9F0-01A', 'TCGA-V4-A9F3-01A', 'TCGA-V4-A9F7-01A', 'TCGA-V4-A9F8-01A', 'TCGA-VD-A8KG-01A', 'TCGA-VD-A8KJ-01A', 'TCGA-VD-A8KL-01A', 'TCGA-VD-A8KM-01A', 'TCGA-VD-A8KN-01A', 'TCGA-VD-AA8M-01A', 'TCGA-VD-AA8N-01A', 'TCGA-VD-AA8S-01B', 'TCGA-WC-A87Y-01A', 'TCGA-WC-A880-01A', 'TCGA-WC-A883-01A', 'TCGA-WC-A884-01A', 'TCGA-WC-A885-01A', 'TCGA-WC-A888-01A', 'TCGA-YZ-A980-01A', 'TCGA-YZ-A982-01A', 'TCGA-YZ-A983-01A']
             # B2 = ['TCGA-V4-A9E5-01A', 'TCGA-V4-A9E9-01A', 'TCGA-V4-A9EA-01A', 'TCGA-V4-A9EC-01A', 'TCGA-V4-A9ED-01A', 'TCGA-V4-A9EH-01A', 'TCGA-V4-A9EM-01A', 'TCGA-V4-A9EO-01A', 'TCGA-V4-A9ES-01A', 'TCGA-V4-A9EW-01A', 'TCGA-V4-A9EY-01A', 'TCGA-V4-A9EZ-01A', 'TCGA-V4-A9F1-01A', 'TCGA-V4-A9F2-01A', 'TCGA-V4-A9F4-01A', 'TCGA-VD-A8K7-01B', 'TCGA-VD-A8K9-01A', 'TCGA-VD-A8KA-01B', 'TCGA-VD-A8KB-01A', 'TCGA-VD-A8KE-01A', 'TCGA-VD-A8KH-01A', 'TCGA-VD-A8KK-01A', 'TCGA-VD-A8KO-01A', 'TCGA-VD-AA8P-01A', 'TCGA-VD-AA8R-01A', 'TCGA-VD-AA8T-01A', 'TCGA-WC-A87T-01A', 'TCGA-WC-A87U-01A', 'TCGA-WC-A87W-01A', 'TCGA-WC-A881-01A', 'TCGA-WC-A882-01A', 'TCGA-WC-AA9E-01A', 'TCGA-YZ-A985-01A']
             # N = ['TCGA-V4-A9E7-01A', 'TCGA-V4-A9E8-01A', 'TCGA-V4-A9EE-01A', 'TCGA-V4-A9EF-01A', 'TCGA-V4-A9EI-01A', 'TCGA-V4-A9EJ-01A', 'TCGA-V4-A9EK-01A', 'TCGA-V4-A9EL-01A', 'TCGA-V4-A9EQ-01A', 'TCGA-V4-A9ET-01A', 'TCGA-V4-A9EX-01A', 'TCGA-V4-A9F0-01A', 'TCGA-V4-A9F3-01A', 'TCGA-V4-A9F7-01A', 'TCGA-V4-A9F8-01A', 'TCGA-VD-A8KG-01A', 'TCGA-VD-A8KJ-01A', 'TCGA-VD-A8KL-01A', 'TCGA-VD-A8KM-01A', 'TCGA-VD-A8KN-01A', 'TCGA-VD-AA8M-01A', 'TCGA-VD-AA8N-01A', 'TCGA-VD-AA8S-01B', 'TCGA-WC-A87Y-01A', 'TCGA-WC-A880-01A', 'TCGA-WC-A883-01A', 'TCGA-WC-A884-01A', 'TCGA-WC-A885-01A', 'TCGA-WC-A888-01A', 'TCGA-YZ-A980-01A', 'TCGA-YZ-A982-01A', 'TCGA-YZ-A983-01A', 'TCGA-V4-A9E5-01A', 'TCGA-V4-A9E9-01A', 'TCGA-V4-A9EA-01A', 'TCGA-V4-A9EC-01A', 'TCGA-V4-A9ED-01A', 'TCGA-V4-A9EH-01A', 'TCGA-V4-A9EM-01A', 'TCGA-V4-A9EO-01A', 'TCGA-V4-A9ES-01A', 'TCGA-V4-A9EW-01A', 'TCGA-V4-A9EY-01A', 'TCGA-V4-A9EZ-01A', 'TCGA-V4-A9F1-01A', 'TCGA-V4-A9F2-01A', 'TCGA-V4-A9F4-01A', 'TCGA-VD-A8K7-01B', 'TCGA-VD-A8K9-01A', 'TCGA-VD-A8KA-01B', 'TCGA-VD-A8KB-01A', 'TCGA-VD-A8KE-01A', 'TCGA-VD-A8KH-01A', 'TCGA-VD-A8KK-01A', 'TCGA-VD-A8KO-01A', 'TCGA-VD-AA8P-01A', 'TCGA-VD-AA8R-01A', 'TCGA-VD-AA8T-01A', 'TCGA-WC-A87T-01A', 'TCGA-WC-A87U-01A', 'TCGA-WC-A87W-01A', 'TCGA-WC-A881-01A', 'TCGA-WC-A882-01A', 'TCGA-WC-AA9E-01A', 'TCGA-YZ-A985-01A']
@@ -57,9 +56,9 @@ def find_clusters_and_survival(reduced_dim_file_name, total_gene_list_file_name,
                          [labels_assignment[i]] + labels_assignment[:i] + labels_assignment[i + 1:],
                          gene_expression_top_var_headers_rows,
                          reduced_dim_file_name, label_index=i)
-            pv = km_curve(labeled_patients, survival_dataset[1:], gene_expression_top_var_headers_rows, reduced_dim_file_name.split(".")[0], label_index=i)
-    return pv
+            lr_results_global.append(km_curve(labeled_patients, survival_dataset[1:], gene_expression_top_var_headers_rows, reduced_dim_file_name.split(".")[0], label_index=i))
 
+    return lr_results_global
 
 
 def check_enrichment(gene_list):

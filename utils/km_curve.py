@@ -31,7 +31,7 @@ def km_curve(labels_ids, survival_dataset, tested_gene_expression_headers_column
         label_event_c = survival_dataset[np.in1d(survival_dataset[:, 0], labels_c), 4].astype(np.int32)
         label_duration_c = survival_dataset[np.in1d(survival_dataset[:, 0], labels_c), 3].astype(np.int32)
 
-        lr_results = logrank_test(label_duration, label_duration_c, label_event, label_event_c, alpha=.95)
+        lr_results_global = logrank_test(label_duration, label_duration_c, label_event, label_event_c, alpha=.95)
         if len(label_duration) != 0:
             kmf.fit(list(label_duration), event_observed=list(label_event), label="cluster {} n={}, logrank pval = {}".format(i,len(label_duration), '{0:1.3e}'.format(lr_results.p_value))) # '%.7f' %
             kmf.plot(ax=ax, show_censors=True)
@@ -44,4 +44,5 @@ def km_curve(labels_ids, survival_dataset, tested_gene_expression_headers_column
     plt.title("clustering survival analysis");
     plt.savefig(os.path.join(constants.BASE_PROFILE,"output" ,"cluster_by_p_{}_{}_k={}_label_i={}_{}.png".format(constants.CANCER_TYPE, gene_group,k,label_index , time.time())))
     plt.cla()
-    return lr_results.pvalue
+    return lr_results_global
+
