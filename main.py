@@ -90,12 +90,22 @@ for cur_tested_file in ["protein_coding_long.txt"]:
                                         end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
                                         clustering_algorithm=app_config["clustering_algorithm"])
 
+            print vae_lr
 
             # PCA
             pca_obj = PCA_obj()
             gene_expression_test_pca = pca_obj.pca_train(gene_expression_top_var_headers_rows_pca,gene_expression_top_var_rotated_pca, survival_dataset[:, 1])
             pca_obj.pca_test(gene_expression_test_pca, gene_expression_top_var_headers_columns, survival_dataset[:, 1])
 
+            pca_lr = find_clusters_and_survival(reduced_dim_file_name=reduced_dim_file_name,
+                                        total_gene_list_file_name=reduced_dim_file_name, gene_list_pca_name=gene_list_pca_name,
+                                        gene_expression_file_name="PCA_compress.tsv",
+                                        phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name,
+                                        var_th_index=var_th_index, is_unsupervised=True, start_k=app_config["start_k"],
+                                        end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
+                                        clustering_algorithm=app_config["clustering_algorithm"])
+            print pca_lr
+            
 	        # Randomly permuted VAE
             pvals = []
             for i in range(app_config["num_randomization"]):
