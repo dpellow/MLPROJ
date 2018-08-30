@@ -55,7 +55,7 @@ class PCA_obj:
         #         clf.fit(x_train_pca, y_train)
         #         print 'score-svm-{}:'.format(kernel) + str(clf.score(x_test_pca, y_test))
 
-    def pca_test(self,patients_list, x_test, y_data):
+    def pca_test(self,x_test,patients_list, y_data):
         print "x_shape is:" + str(np.shape(x_test))
         x_test_pca = self.pca.transform(x_test)
         print "Saving PCA data.."

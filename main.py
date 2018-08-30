@@ -85,7 +85,7 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             # PCA
             pca_obj = PCA_obj()
             gene_expression_test_pca = pca_obj.pca_train(gene_expression_top_var_headers_rows_pca,gene_expression_top_var_rotated_pca, survival_dataset[:, 1])
-            pca_obj.pca_test(gene_expression_top_var_headers_rows_pca, gene_expression_test_pca, survival_dataset[:, 1])
+            pca_obj.pca_test(gene_expression_test_pca,gene_expression_top_var_headers_columns, survival_dataset[:, 1])
 
 	        # Randomly permuted VAE
             pvals = []
