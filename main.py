@@ -6,7 +6,7 @@ from utils.param_builder import *
 from go import get_flat_go
 from nn.mesh import VAEmesh
 from nn.go import VAEgo
-from nn.pca import pca_implement
+from nn.pca import *
 import numpy as np
 from go.go_hierarcies import build_hierarcy
 from survival_comparison.patients_clustering import find_clusters_and_survival
@@ -79,10 +79,13 @@ for cur_tested_file in ["protein_coding_long.txt"]:
              # VAE
             vae_go_obj = VAEgo(gene_expression_top_var_rotated.shape[1])
             vae_go_obj.build_go(gene_expression_top_var_headers_rows, go2geneids, geneids2go, vertices_dict, edges_dict)
-            vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, gene_expression_top_var_headers_columns, survival_dataset[:, 1]) #vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, labels_assignment[1])
+            gene_expression_test_vae = vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, gene_expression_top_var_headers_columns, survival_dataset[:, 1]) #vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, labels_assignment[1])
+            vae_go_obj.test_go(gene_expression_test_vae, gene_expression_top_var_headers_columns, survival_dataset[:, 1])
 
             # PCA
-            pca_implement(gene_expression_top_var_headers_rows_pca,gene_expression_top_var_rotated_pca, survival_dataset[:, 1])
+            pca_obj = PCA_obj()
+            gene_expression_test_pca = pca_obj.pca_train(gene_expression_top_var_headers_rows_pca,gene_expression_top_var_rotated_pca, survival_dataset[:, 1])
+            pca_obj.pca_test(gene_expression_top_var_headers_rows_pca, gene_expression_test_pca, survival_dataset[:, 1])
 
 	    # Randomly permuted VAE
             avg = 0
