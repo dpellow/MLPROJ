@@ -110,7 +110,7 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             # start_k = 2
             # end_k = 2
             # clustering_algorithm = "euclidean"
-            # tested_gene_list_file_name = #PCA/VAE file#
+            # # tested_gene_list_file_name = #PCA/VAE file#
             # lr_results_global = find_clusters_and_survival(reduced_dim_file_name=reduced_dim_file_name,
             #                            total_gene_list_file_name=None,
             #                            gene_expression_file_name=gene_expression_file_name,
@@ -118,8 +118,8 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             #                            var_th_index=var_th_index, is_unsupervised=True, start_k=start_k,
             #                            end_k=end_k, filter_expression=filter_expression, meta_groups=meta_groups,
             #                            clustering_algorithm=clustering_algorithm)
-
-
+            #
+            #
 
             # print "fetch go"
             # get_flat_go.fetch_go_hierarchy()
