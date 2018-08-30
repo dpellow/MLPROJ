@@ -44,4 +44,4 @@ def km_curve(labels_ids, survival_dataset, tested_gene_expression_headers_column
     plt.title("clustering survival analysis");
     plt.savefig(os.path.join(constants.BASE_PROFILE,"output" ,"cluster_by_p_{}_{}_k={}_label_i={}_{}.png".format(constants.CANCER_TYPE, gene_group,k,label_index , time.time())))
     plt.cla()
-
+    return lr_results.pvalue

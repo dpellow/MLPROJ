@@ -15,9 +15,12 @@
   "num_randomization" : 10,
   "use_cache" : true,
   "gene_list_pca" : "mitochondrion.txt",
-  "train" : true
+  "train" : true,
   "use_svm" : false,
   "split_data" :false,
-  "load_weights": false
+  "load_weights": false,
+  "start_k" : 2,
+  "end_k" : 2,
+  "clustering_algorithm" : "euclidean"
 
 }
