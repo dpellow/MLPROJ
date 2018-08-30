@@ -76,13 +76,25 @@ for cur_tested_file in ["protein_coding_long.txt"]:
                 edges_dict.update(dict_result[r]['edges'])
 
 
-            # VAE
+             # VAE
             vae_go_obj = VAEgo(gene_expression_top_var_rotated.shape[1])
             vae_go_obj.build_go(gene_expression_top_var_headers_rows, go2geneids, geneids2go, vertices_dict, edges_dict)
-            vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, survival_dataset[:, 1]) #vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, labels_assignment[1])
+            vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, gene_expression_top_var_headers_columns, survival_dataset[:, 1]) #vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, labels_assignment[1])
 
             # PCA
             pca_implement(gene_expression_top_var_headers_rows_pca,gene_expression_top_var_rotated_pca, survival_dataset[:, 1])
+
+	    # Randomly permuted VAE
+            avg = 0
+            for i in range(app_config["num_randomization"]):
+		gene_expression_top_var_permuted = np.random.permutation(gene_expression_top_var)
+                gene_expression_top_var_permuted_rotated = np.rot90(np.flip(gene_expression_top_var_permuted, 1), k=-1, axes=(1, 0))
+		### NEED TO ADD PARAM TO CHOOSE WHERE TO WRITE OUTPUT FILE
+                vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_permuted_rotated, survival_dataset[:, 1]) ### DO WE NEED TO RUN build_go AGAIN TOO??
+		### NEED TO OUTPUT SINGLE NUMBER FROM SURVIVAL (P-VALUE?)
+                ### avg += find_clusters_and_survival(#########
+	    avg /= app_config["num_randomization"]
+
 
             # K-mean & survival
             # start_k = 2
