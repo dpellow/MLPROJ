@@ -32,37 +32,36 @@ class PCA_obj:
 
             self.pca = PCA(n_components=app_config["latent_dim"])
             self.pca.fit(x_train)
-            x_train_pca = self.pca.transform(x_train)
-            x_test_pca = self.pca.transform(x_test)
         else:
-            x_train = gene_expression_data
-            pca = PCA(n_components=app_config["latent_dim"])
-            pca.fit(x_train)
-            x_train_pca = pca.transform(x_train)
+            x_train = np.array(gene_expression_data).astype(np.float64)
+            self.pca = PCA(n_components=app_config["latent_dim"])
+            self.pca.fit(x_train)
             x_test = x_train
 
         print "New dim:" + str(len(self.pca.explained_variance_ratio_.cumsum()))
         print "variance_ratio:" + str(self.pca.explained_variance_ratio_.cumsum())
 
         # mse-loss
-        x_projected = self.pca.inverse_transform(x_train_pca)
+        x_projected = self.pca.inverse_transform(self.pca.transform(x_train))
         loss =((x_train-x_projected)**2).mean()
         print "MSE-loss: " + str(loss)
-
-        ### SVM ###
-        if app_config["use_svm"]:
-            for kernel in ('linear', 'poly', 'rbf'):
-                clf = SVC(kernel =kernel)
-                clf.fit(x_train_pca, y_train)
-                print 'score-svm-{}:'.format(kernel) + str(clf.score(x_test_pca, y_test))
+        print "x_shape is:" + str(np.shape(x_test))
         return x_test
 
+        ### SVM ###
+        # if app_config["use_svm"]:
+        #     for kernel in ('linear', 'poly', 'rbf'):
+        #         clf = SVC(kernel =kernel)
+        #         clf.fit(x_train_pca, y_train)
+        #         print 'score-svm-{}:'.format(kernel) + str(clf.score(x_test_pca, y_test))
+
     def pca_test(self,patients_list, x_test, y_data):
-        x_train_pca = self.pca.transform(x_test)
+        print "x_shape is:" + str(np.shape(x_test))
+        x_test_pca = self.pca.transform(x_test)
         print "Saving PCA data.."
         # x_projected = np.insert(x_projected,[0], np.array(app_config["latent_dim"]),axis = 0)
         # np.save(os.path.join(constants.OUTPUT_GLOBAL_DIR, "PCA_compress.txt"), x_projected)
-        pca_data = pd.DataFrame(x_train_pca, index=patients_list, columns=range(app_config["latent_dim"]))
+        pca_data = pd.DataFrame(x_test_pca, index=patients_list, columns=range(app_config["latent_dim"]))
         pca_data.index.name = 'PCA'
         pca_data.to_csv(os.path.join(constants.OUTPUT_GLOBAL_DIR, "PCA_compress.tsv"), sep='\t')
 
