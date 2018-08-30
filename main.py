@@ -85,7 +85,7 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             # PCA
             pca_obj = PCA_obj()
             gene_expression_test_pca = pca_obj.pca_train(gene_expression_top_var_headers_rows_pca,gene_expression_top_var_rotated_pca, survival_dataset[:, 1])
-            pca_obj.pca_test(gene_expression_test_pca, gene_expression_top_var_headers_columns, survival_dataset[:, 1])
+            pca_obj.pca_test(gene_expression_top_var_headers_rows_pca, gene_expression_test_pca, survival_dataset[:, 1])
 
 	        # Randomly permuted VAE
             pvals = []
@@ -96,7 +96,7 @@ for cur_tested_file in ["protein_coding_long.txt"]:
                 gene_expression_test_vae = vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_permuted_rotated, gene_expression_top_var_headers_columns,  survival_dataset[:, 1], "VAE_weights_random_"+str(i)+".h5")
                 vae_go_obj.test_go(gene_expression_test_vae, gene_expression_top_var_headers_columns, survival_dataset[:, 1],vae_projections_fname)
                 lr = (find_clusters_and_survival(reduced_dim_file_name=vae_projections_fname,
-                                            total_gene_list_file_name=None,
+                                            total_gene_list_file_name=None, gene_list_pca_name=gene_list_pca_name,
                                             gene_expression_file_name=gene_expression_file_name,
                                             phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name,
                                             var_th_index=var_th_index, is_unsupervised=True, start_k=app_config["start_k"],
