@@ -371,7 +371,8 @@ class VAEgo:
         print "Saving VAE data.."
         # x_projected = np.insert(x_projected,[0], np.array(app_config["latent_dim"]),axis = 0)
         # np.save(os.path.join(constants.OUTPUT_GLOBAL_DIR, "PCA_compress.txt"), x_projected)
-        pca_data = pd.DataFrame(latent_space[2], index=patients_list, columns=range(app_config["latent_dim"]))
+        latent_data = latent_space[2].T
+        pca_data = pd.DataFrame(latent_data, index=range(app_config["latent_dim"]), columns=patients_list)
         pca_data.index.name = 'VAE'
         pca_data.to_csv(os.path.join(constants.OUTPUT_GLOBAL_DIR, vae_projections_fname), sep='\t')
     # print x_test.T[:3]
