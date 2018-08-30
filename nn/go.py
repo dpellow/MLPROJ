@@ -275,7 +275,7 @@ class VAEgo:
 
         plot_model(self.vae, to_file=os.path.join(constants.OUTPUT_GLOBAL_DIR, "model.svg"))
 
-    def train_go(self, header_ensembl_ids,gene_expression_data, patients_list,y_data):
+    def train_go(self, header_ensembl_ids,gene_expression_data, patients_list,y_data, vae_weights_fname = "VAE_weights.h5"):
         print np.shape(gene_expression_data)
         print "start training.."
         print gene_expression_data[0]
@@ -343,7 +343,7 @@ class VAEgo:
 
         history = LossHistory()
         if app_config["load_weights"]:
-            self.vae = self.vae.load_weights(os.path.join(constants.OUTPUT_GLOBAL_DIR, "VAE_weights.h5"))
+            self.vae = self.vae.load_weights(os.path.join(constants.OUTPUT_GLOBAL_DIR, vae_weights_fname))
         else:
             hist = self.vae.fit([x for x in x_train.T],
                                 shuffle=True,
@@ -351,7 +351,7 @@ class VAEgo:
                                 batch_size=batch_size,
                                 validation_data=([x for x in x_test.T], None),
                                 callbacks=[history])
-            self.vae.save_weights(os.path.join(constants.OUTPUT_GLOBAL_DIR, "VAE_weights.h5"))
+            self.vae.save_weights(os.path.join(constants.OUTPUT_GLOBAL_DIR, vae_weights_fname))
         return x_total
 
         # print(history.losses)
@@ -363,7 +363,7 @@ class VAEgo:
         # print('Test loss:', score[0])
         # print('Test accuracy:', score[1])
 
-    def test_go(self, test_input_data, patients_list, y_data):
+    def test_go(self, test_input_data, patients_list, y_data, vae_projections_fname = "VAE_compress.tsv"):
         print np.shape(test_input_data)
         latent_space = self.encoder.predict([x for x in test_input_data.T], batch_size=batch_size)
         print np.shape(latent_space[2])
@@ -373,7 +373,7 @@ class VAEgo:
         # np.save(os.path.join(constants.OUTPUT_GLOBAL_DIR, "PCA_compress.txt"), x_projected)
         pca_data = pd.DataFrame(latent_space[2], index=patients_list, columns=range(app_config["latent_dim"]))
         pca_data.index.name = 'VAE'
-        pca_data.to_csv(os.path.join(constants.OUTPUT_GLOBAL_DIR, "VAE_compress.tsv"), sep='\t')
+        pca_data.to_csv(os.path.join(constants.OUTPUT_GLOBAL_DIR, vae_projections_fname), sep='\t')
     # print x_test.T[:3]
     # pred = [x for x in x_test.T]
     # pred = [np.array([y[0] for y in pred]), np.array([y[1] for y in pred]), np.array([y[2] for y in pred])]
