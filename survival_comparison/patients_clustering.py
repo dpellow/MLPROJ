@@ -25,7 +25,7 @@ from utils.ensembl2gene_symbol import e2g_convertor
 # () main
 def find_clusters_and_survival(reduced_dim_file_name, total_gene_list_file_name, gene_expression_file_name, phenotype_file_name, survival_file_name, gene_filter_file_name=None, tested_gene_list_path=None, total_gene_list_path=None, gene_list_pca_name=None, gene_expression_path=None, phenotype_path=None, gene_filter_file_path=None, var_th_index=None, is_unsupervised=True, start_k=2, end_k=2, meta_groups=None, filter_expression=None, clustering_algorithm="euclidean"):
 
-    data = load_integrated_ge_data(tested_gene_list_file_name=reduced_dim_file_name, total_gene_list_file_name=total_gene_list_file_name, gene_expression_file_name=gene_expression_file_name, phenotype_file_name=phenotype_file_name, gene_list_pca_name=gene_list_pca_name, survival_file_name=survival_file_name, var_th_index=var_th_index, meta_groups=meta_groups, filter_expression=filter_expression)
+    data = load_integrated_ge_data(tested_gene_list_file_name=reduced_dim_file_name, total_gene_list_file_name=total_gene_list_file_name, gene_expression_file_name=gene_expression_file_name, gene_expression_path=constants.OUTPUT_GLOBAL_DIR, phenotype_file_name=phenotype_file_name, gene_list_pca_name=gene_list_pca_name, survival_file_name=survival_file_name, var_th_index=var_th_index, meta_groups=meta_groups, filter_expression=filter_expression)
     if data is None:
         print "insufficient data"
         return

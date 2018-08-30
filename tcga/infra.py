@@ -380,7 +380,7 @@ def load_integrated_mutation_data(mutation_file_name,
 
 
 def load_integrated_ge_data(tested_gene_list_file_name, total_gene_list_file_name, gene_expression_file_name,gene_list_pca_name,
-                            survival_file_name, phenotype_file_name, gene_filter_file_name=None, filter_expression=None,
+                            survival_file_name, phenotype_file_name, gene_expression_path, gene_filter_file_name=None, filter_expression=None,
                             meta_groups=None, var_th_index=None):
     cache_path = os.path.join(constants.CACHE_DIR, "datasets",
                               "datasets_{}_{}".format(gene_expression_file_name.split(".")[0],
@@ -399,7 +399,7 @@ def load_integrated_ge_data(tested_gene_list_file_name, total_gene_list_file_nam
         print "loading datasets from files"
         tested_gene_expression = np.array(
             load_gene_expression_profile_by_genes(tested_gene_list_file_name, gene_expression_file_name,
-                                                  gene_filter_file_name))
+                                                  gene_filter_file_name, gene_expression_path=gene_expression_path))
         print "separating dataset headers"
         tested_gene_expression_headers_rows, tested_gene_expression_headers_columns, tested_gene_expression = separate_headers(
             tested_gene_expression)
