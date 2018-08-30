@@ -81,6 +81,15 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             vae_go_obj.build_go(gene_expression_top_var_headers_rows, go2geneids, geneids2go, vertices_dict, edges_dict)
             gene_expression_test_vae = vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, gene_expression_top_var_headers_columns, survival_dataset[:, 1]) #vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, labels_assignment[1])
             vae_go_obj.test_go(gene_expression_test_vae, gene_expression_top_var_headers_columns, survival_dataset[:, 1])
+            reduced_dim_file_name = "reduced_dim_vae.txt"
+            vae_lr = find_clusters_and_survival(reduced_dim_file_name=reduced_dim_file_name,
+                                        total_gene_list_file_name=reduced_dim_file_name, gene_list_pca_name=gene_list_pca_name,
+                                        gene_expression_file_name="VAE_compress.tsv",
+                                        phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name,
+                                        var_th_index=var_th_index, is_unsupervised=True, start_k=app_config["start_k"],
+                                        end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
+                                        clustering_algorithm=app_config["clustering_algorithm"])
+
 
             # PCA
             pca_obj = PCA_obj()
@@ -89,7 +98,6 @@ for cur_tested_file in ["protein_coding_long.txt"]:
 
 	        # Randomly permuted VAE
             pvals = []
-            reduced_dim_file_name = "reduced_dim_vae.txt"
             for i in range(app_config["num_randomization"]):
                 gene_expression_top_var_permuted = np.random.permutation(gene_expression_top_var)
                 gene_expression_top_var_permuted_rotated = np.rot90(np.flip(gene_expression_top_var_permuted, 1), k=-1, axes=(1, 0))
