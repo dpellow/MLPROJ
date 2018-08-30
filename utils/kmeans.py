@@ -97,7 +97,7 @@ def kmeanssample( X, k, nsample=0, **kwargs ):
     result_dict = {}
     max_repetitions = 0
     result_new = None
-    while count<10 or max_repetitions < 3:
+    while count<100 and max_repetitions < 3:
 
         Xsample = randomsample(X, int(nsample))
         pass1centres = randomsample(X, int(k))

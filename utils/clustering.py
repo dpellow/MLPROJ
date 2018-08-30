@@ -1,3 +1,7 @@
+import matplotlib
+from matplotlib import style
+style.use("ggplot")
+matplotlib.use('Agg')
 import numpy as np
 from scipy.stats import rankdata
 import matplotlib.pyplot as plt
@@ -34,9 +38,9 @@ def find_clusters(end_k, gene_expression_top_var, gene_expression_top_var_header
             desc = "k={} clustering cluster {} has {} patients".format(n_clusters, i, len(gene_headers_rows_cluster))
 
 
-        plot_heatmap(gene_expression_top_var, gene_expression_top_var_headers_columns,
-                     labels_assignment, gene_expression_top_var_headers_rows,
-                     tested_gene_list_file_name, n_clusters, phenotype_heatmap=phenotype_heatmap)
+        # plot_heatmap(gene_expression_top_var, gene_expression_top_var_headers_columns,
+        #              labels_assignment, gene_expression_top_var_headers_rows,
+        #              tested_gene_list_file_name, n_clusters, phenotype_heatmap=phenotype_heatmap)
     return clfs_results
 
 def plot_heatmap(gene_expression_top_var, gene_expression_top_var_headers_columns, labels_assignment,

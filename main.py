@@ -114,6 +114,7 @@ for cur_tested_file in ["protein_coding_long.txt"]:
                 vae_projections_fname = "VAE_projections_random_"+str(i)+".tsv"
                 gene_expression_test_vae = vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_permuted_rotated, gene_expression_top_var_headers_columns,  survival_dataset[:, 1], "VAE_weights_random_"+str(i)+".h5")
                 vae_go_obj.test_go(gene_expression_test_vae, gene_expression_top_var_headers_columns, survival_dataset[:, 1],vae_projections_fname)
+                print "current loop: {}".format(i)
                 lr = (find_clusters_and_survival(reduced_dim_file_name=reduced_dim_file_name,
                                             total_gene_list_file_name=reduced_dim_file_name, gene_list_pca_name=gene_list_pca_name,
                                             gene_expression_file_name=vae_projections_fname,
