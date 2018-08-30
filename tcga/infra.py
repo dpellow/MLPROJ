@@ -31,7 +31,7 @@ import sys
 
 def load_gene_list(gene_list_file_name, gene_list_path=None):  # ="TCGA-SKCM.htseq_counts.tsv"
     if gene_list_path == None:
-        gene_list_path = os.path.join(constants.OUTPUT_GLOBAL_DIR, gene_list_file_name)
+        gene_list_path = os.path.join(constants.LIST_DIR, gene_list_file_name)
     f = open(gene_list_path, 'r')
     lines = [l.strip() for l in f]
     f.close()
@@ -474,8 +474,8 @@ def load_integrated_ge_data(tested_gene_list_file_name, total_gene_list_file_nam
 
         print "filtering top vars - PCA"
         tested_gene_expression_pca, tested_gene_expression_headers_rows_pca, tested_gene_expression_headers_columns = filter_top_var_genes(
-            tested_gene_expression_pca, tested_gene_expression_headers_columns,
-            tested_gene_expression_headers_rows_pca, var_th_index)
+           tested_gene_expression, tested_gene_expression_headers_columns,
+           tested_gene_expression_headers_rows, var_th_index)
     else:
         print "skipping filter top vars"
 
@@ -484,8 +484,7 @@ def load_integrated_ge_data(tested_gene_list_file_name, total_gene_list_file_nam
     # tested_gene_expression_headers_columns = tmp
     # tested_gene_expression = np.rot90(np.flip(tested_gene_expression, 1), k=-1, axes=(1, 0))
 
-    return (tested_gene_expression, tested_gene_expression_headers_rows, tested_gene_expression_headers_columns,
-            labels_assignment, survival_dataset_new,tested_gene_expression_pca,tested_gene_expression_headers_rows_pca)
+    return (tested_gene_expression, tested_gene_expression_headers_rows, tested_gene_expression_headers_columns, labels_assignment, survival_dataset_new, tested_gene_expression_pca,tested_gene_expression_headers_rows_pca)
 
 
 def filter_top_var_genes(tested_gene_expression, tested_gene_expression_headers_columns,
