@@ -144,9 +144,9 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             var_random_VAE = np.var(pvals_random_vae)
             f.write("Average random VAE: " + str(avg_random_VAE) + "," + "Variance random VAE: " + str(var_random_VAE) + "," + str(time.time()))
 
-            print "Average VAE: " + str(avg_vae) + "  ;   Variance VAE: " + str(var_VAE)
-            print "Average PCA: " + str(avg_pca) + "  ;   Variance PCA: " + str(var_pca)
-            print "Average random VAE: " + str(avg_random_VAE) + "  ;   Variance random VAE: " + str(avg_random_VAE)
+            print "Average VAE: " + str(avg_vae) + "  ;   Variance VAE: {} ".format(var_VAE) + str(var_VAE)
+            print "Average PCA: " + str(avg_pca) + "  ;   Variance PCA: {}".format(var_pca)
+            print "Average random VAE: " + str(avg_random_VAE) + "  ;   Variance random VAE: {}".format(var_random_VAE)
             f.close()
 
             # K-mean & survival
