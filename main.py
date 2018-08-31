@@ -1,18 +1,14 @@
 
 import json
-import constants
 from tcga import load_tcga_data
 from utils.param_builder import *
-from go import get_flat_go
-from nn.mesh import VAEmesh
 from nn.go import VAEgo
-from nn.pca import *
+from pca.pca_im import *
 import numpy as np
 from go.go_hierarcies import build_hierarcy
 from survival_comparison.patients_clustering import find_clusters_and_survival
 
 from constants import app_config
-import sys
 import resource
 
 def memory_limit():
@@ -97,8 +93,7 @@ for cur_tested_file in ["protein_coding_long.txt"]:
                 vae_lr.append(vae_lr_iter[0])
                 print vae_lr_iter[0]
             avg_vae = sum(vae_lr) / float(len(vae_lr))
-            print "Average VAE: " + str(avg_vae)
-
+            var_VAE = np.var(vae_lr)
             # PCA
             pca_obj = PCA_obj()
             gene_expression_test_pca = pca_obj.pca_train(gene_expression_top_var_headers_rows_pca,gene_expression_top_var_rotated_pca, survival_dataset[:, 1])
@@ -119,6 +114,7 @@ for cur_tested_file in ["protein_coding_long.txt"]:
                 print pca_lr_iter[0]
             avg_pca = sum(pca_lr) / float(len(pca_lr))
             print "Average PCA: " + str(avg_pca)
+            var_pca = np.var(pca_lr)
 
             # Randomly permuted VAE
             pvals_random_vae = []
@@ -138,7 +134,11 @@ for cur_tested_file in ["protein_coding_long.txt"]:
                                             clustering_algorithm=app_config["clustering_algorithm"]))
                 pvals_random_vae.append(lr[0])
             avg_random_VAE = sum(pvals_random_vae)/float(len(pvals_random_vae))
-            print "Average random VAE: " + str(avg_random_VAE)
+            var_random_VAE = np.var(pvals_random_vae)
+
+            print "Average VAE: " + str(avg_vae) + "  ;   Variance VAE: " + str(var_VAE)
+            print "Average PCA: " + str(avg_pca) + "  ;   Variance PCA: " + str(var_pca)
+            print "Average random VAE: " + str(avg_random_VAE) + "  ;   Variance random VAE: " + str(avg_random_VAE)
 
 
             # K-mean & survival
