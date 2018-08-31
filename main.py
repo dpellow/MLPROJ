@@ -98,7 +98,7 @@ for cur_tested_file in ["protein_coding_long.txt"]:
                 print vae_lr_iter[0]
             avg_vae = sum(vae_lr) / float(len(vae_lr))
             var_VAE = np.var(vae_lr)
-            f.write("Average VAE: " + str(avg_vae) + "," + "Variance VAE: " + str(var_VAE) +"," + str(time.time()))
+            f.write("Average VAE: " + str(avg_vae) + "," + "Variance VAE: " + str(var_VAE) +"," + str(time.time())+"\n")
 
             # PCA
             pca_obj = PCA_obj()
@@ -121,7 +121,7 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             avg_pca = sum(pca_lr) / float(len(pca_lr))
             print "Average PCA: " + str(avg_pca)
             var_pca = np.var(pca_lr)
-            f.write("Average PCA: " + str(avg_pca) + "," + "Variance PCA: " + str(var_pca) + "," + str(time.time()))
+            f.write("Average PCA: " + str(avg_pca) + "," + "Variance PCA: " + str(var_pca) + "," + str(time.time()) + "\n")
 
             # Randomly permuted VAE
             pvals_random_vae = []
@@ -142,7 +142,7 @@ for cur_tested_file in ["protein_coding_long.txt"]:
                 pvals_random_vae.append(lr[0])
             avg_random_VAE = sum(pvals_random_vae)/float(len(pvals_random_vae))
             var_random_VAE = np.var(pvals_random_vae)
-            f.write("Average random VAE: " + str(avg_random_VAE) + "," + "Variance random VAE: " + str(var_random_VAE) + "," + str(time.time()))
+            f.write("Average random VAE: " + str(avg_random_VAE) + "," + "Variance random VAE: " + str(var_random_VAE) + "," + str(time.time()) +"\n")
 
             print "Average VAE: " + str(avg_vae) + "  ;   Variance VAE: {} ".format(var_VAE) + str(var_VAE)
             print "Average PCA: " + str(avg_pca) + "  ;   Variance PCA: {}".format(var_pca)
