@@ -107,7 +107,7 @@ class VAEgo:
         #     e2e_id = entrez2ensembl_convertor([k])
         #     if len(e2e_id)==0 or e2e_id[0] not in gene_list: continue
         #     genes2input[k]= Input(shape=(1,), name="{}_{}_{}".format(e2e_id[0],str(k),"input") ) # Dense(1, )(Input(shape=(1,)))
-
+        input_ensembl_ids = []
         print "connect input layer to GO leafs"
         for k, v in vertices.iteritems():
             cur_layer = []
@@ -116,6 +116,7 @@ class VAEgo:
                     if not genes2input.has_key(cur_entrez):
                         e2e_id = entrez2ensembl_convertor([cur_entrez])
                         if len(e2e_id) != 0 and e2e_id[0] in gene_list:
+                            input_ensembl_ids.append(e2e_id[0])
                             genes2input[cur_entrez] = Input(shape=(1,),
                                                             name="{}_{}_{}".format(e2e_id[0], str(cur_entrez), "input"))
 
@@ -128,6 +129,9 @@ class VAEgo:
                                               activation=app_config['activation_function'], name=go_name)
                 v["neuron_converged_inputs"] = cur_layer
 
+        
+        print "save input layer as list"
+        file(os.path.join(constants.LIST_DIR, app_config["gene_list_pca"]),'w+').write("\n".join(input_ensembl_ids))
         print "connect intermediate converged GO layers"
         neuron_count = 0
 
