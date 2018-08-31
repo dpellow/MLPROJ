@@ -85,9 +85,9 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             vae_projections_fname = dataset + "_VAE_compress.tsv"
             vae_go_obj.test_go(gene_expression_test_vae, gene_expression_top_var_headers_columns, survival_dataset[:, 1],vae_projections_fname)
 
+            vae_lr =[]
             for i in range(app_config["num_randomization"]):
                 print "current loop: {}".format(i)
-                vae_lr =[]
                 vae_lr_iter = find_clusters_and_survival(reduced_dim_file_name=reduced_dim_file_name,
                                             total_gene_list_file_name=reduced_dim_file_name, gene_list_pca_name=gene_list_pca_name,
                                             gene_expression_file_name="VAE_compress.tsv",
@@ -107,9 +107,9 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             pca_projections_fname = dataset + "_PCA_compress.tsv"
             pca_obj.pca_test(gene_expression_test_pca, gene_expression_top_var_headers_columns, survival_dataset[:, 1], pca_projections_fname)
 
+            pca_lr =[]
             for i in range(app_config["num_randomization"]):
                 print "current loop: {}".format(i)
-                pca_lr =[]
                 pca_lr_iter = find_clusters_and_survival(reduced_dim_file_name=reduced_dim_file_name,
                                             total_gene_list_file_name=reduced_dim_file_name, gene_list_pca_name=gene_list_pca_name,
                                             gene_expression_file_name="PCA_compress.tsv",
