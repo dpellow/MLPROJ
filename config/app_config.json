@@ -1,7 +1,7 @@
 {
   "root" : ["GO:0007005", "GO:0044429" ],
   "root_" : ["GO:0003674","GO:0005575"],
-  "datasets" : ["PANCAN","UVM","BRCA"],
+  "datasets" : ["PANCAN"],
   "data_normalizaton" : "fpkm_normalized_by_genes_l_inf_norm",
   "var_th_index" : 2000,
   "total_gene_list_file_name" : "protein_coding_long.txt",

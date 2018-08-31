@@ -35,6 +35,7 @@ memory_limit()
 # for cur_suffix in ["gt","gly","lac","tca"]:
 #     for cur_dir in ["high","low"]:
 #
+file(os.path.join(constants.LIST_DIR, "reduced_dim_vae.txt"),'w+').write("\n".join([str(x) for x in range(app_config['latent_dim'])]))
 for cur_tested_file in ["protein_coding_long.txt"]:
     for cur_json in ["gender"]: #
 
