@@ -22,6 +22,7 @@ def km_curve(labels_ids, survival_dataset, tested_gene_expression_headers_column
     all_labels = np.array([y for x in labels_ids for y in x])
     label_event_list = []
     label_duration_list = []
+    lr_results_global = None
     for i, cur_labels in enumerate(labels_ids):
         label_event = survival_dataset[np.in1d(survival_dataset[:, 0], cur_labels) & np.in1d(survival_dataset[:, 0], tested_gene_expression_headers_columns), 4].astype(np.int32)
         label_duration = survival_dataset[np.in1d(survival_dataset[:, 0], cur_labels) & np.in1d(survival_dataset[:, 0], tested_gene_expression_headers_columns), 3].astype(np.int32)

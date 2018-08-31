@@ -1,18 +1,15 @@
 
 import json
-import constants
+import time
 from tcga import load_tcga_data
 from utils.param_builder import *
-from go import get_flat_go
-from nn.mesh import VAEmesh
 from nn.go import VAEgo
-from nn.pca import *
+from pca.pca_im import *
 import numpy as np
 from go.go_hierarcies import build_hierarcy
 from survival_comparison.patients_clustering import find_clusters_and_survival
 
 from constants import app_config
-import sys
 import resource
 
 def memory_limit():
@@ -43,6 +40,9 @@ for cur_tested_file in ["protein_coding_long.txt"]:
     for cur_json in ["gender"]: #
 
         for dataset in app_config["datasets"]:
+            data_file_name = dataset +".txt"
+            f = open(os.path.join(constants.OUTPUT_GLOBAL_DIR, data_file_name), "w+")
+            f.write("Stating dataset: " + dataset + "," + str(time.time()))
             meta_groups = None
             meta_groups=[json.load(file("groups/{}.json".format(cur_json)))]
 
@@ -98,7 +98,8 @@ for cur_tested_file in ["protein_coding_long.txt"]:
                 vae_lr.append(vae_lr_iter[0])
                 print vae_lr_iter[0]
             avg_vae = sum(vae_lr) / float(len(vae_lr))
-            print "Average VAE: " + str(avg_vae)
+            var_VAE = np.var(vae_lr)
+            f.write("Average VAE: " + str(avg_vae) + "," + "Variance VAE: " + str(var_VAE) +"," + str(time.time())+"\n")
 
             # PCA
             pca_obj = PCA_obj()
@@ -120,6 +121,8 @@ for cur_tested_file in ["protein_coding_long.txt"]:
                 print pca_lr_iter[0]
             avg_pca = sum(pca_lr) / float(len(pca_lr))
             print "Average PCA: " + str(avg_pca)
+            var_pca = np.var(pca_lr)
+            f.write("Average PCA: " + str(avg_pca) + "," + "Variance PCA: " + str(var_pca) + "," + str(time.time()) + "\n")
 
             # Randomly permuted VAE
             pvals_random_vae = []
@@ -139,8 +142,13 @@ for cur_tested_file in ["protein_coding_long.txt"]:
                                             clustering_algorithm=app_config["clustering_algorithm"]))
                 pvals_random_vae.append(lr[0])
             avg_random_VAE = sum(pvals_random_vae)/float(len(pvals_random_vae))
-            print "Average random VAE: " + str(avg_random_VAE)
+            var_random_VAE = np.var(pvals_random_vae)
+            f.write("Average random VAE: " + str(avg_random_VAE) + "," + "Variance random VAE: " + str(var_random_VAE) + "," + str(time.time()) +"\n")
 
+            print "Average VAE: " + str(avg_vae) + "  ;   Variance VAE: {} ".format(var_VAE) + str(var_VAE)
+            print "Average PCA: " + str(avg_pca) + "  ;   Variance PCA: {}".format(var_pca)
+            print "Average random VAE: " + str(avg_random_VAE) + "  ;   Variance random VAE: {}".format(var_random_VAE)
+            f.close()
 
             # K-mean & survival
             # start_k = 2
