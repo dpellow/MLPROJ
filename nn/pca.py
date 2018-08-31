@@ -55,7 +55,7 @@ class PCA_obj:
         #         clf.fit(x_train_pca, y_train)
         #         print 'score-svm-{}:'.format(kernel) + str(clf.score(x_test_pca, y_test))
 
-    def pca_test(self,x_test,patients_list, y_data):
+    def pca_test(self,x_test,patients_list, y_data, pca_projections_fname = "PCA_compress.tsv"):
         print "x_shape is:" + str(np.shape(x_test))
         x_test_pca = self.pca.transform(x_test)
         print "Saving PCA data.."
@@ -64,7 +64,7 @@ class PCA_obj:
         x_test_pca = x_test_pca.T
         pca_data = pd.DataFrame(x_test_pca, index=range(app_config["latent_dim"]), columns=patients_list)
         pca_data.index.name = 'PCA'
-        pca_data.to_csv(os.path.join(constants.OUTPUT_GLOBAL_DIR, "PCA_compress.tsv"), sep='\t')
+        pca_data.to_csv(os.path.join(constants.OUTPUT_GLOBAL_DIR, pca_projections_fname), sep='\t')
 
     ### visualize two first components
     # plt.scatter(x_train_pca[:, 0], x_train_pca[:, 1],
