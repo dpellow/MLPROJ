@@ -113,7 +113,7 @@ def kmeanssample( X, k, nsample=0, **kwargs ):
         max_repetitions = max(max_repetitions, result_dict[key])
         if max_repetitions == result_dict[key]:
             max_results = result_new
-        print "max repetitons: {}".format(max_repetitions)
+        # print "max repetitons: {}".format(max_repetitions)
 
 
     return max_results

@@ -1,5 +1,7 @@
 # Run main in a loop
 
+import os
+import constants 
 import main
 
 #thresholds = [2000,5000,10000,15000,20000]
@@ -45,7 +47,7 @@ with open('results.txt',"w",0) as r:
               o.write(l)
 
         main.run()
-        with open('../dataset_dir/output/PANCAN.txt') as f:
+        with open(os.path.join(constants.OUTPUT_GLOBAL_DIR, 'PANCAN.txt')) as f:
           lines = f.readlines()
         vsplit = lines[0].strip().split(",")
         vae_avg = vsplit[0].split(":")[1]
