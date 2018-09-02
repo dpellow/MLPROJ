@@ -81,6 +81,7 @@ def run():
 
 
              # VAE
+            print "about to construct VAE"
             vae_go_obj = VAEgo(gene_expression_top_var_rotated.shape[1])
             vae_go_obj.build_go(gene_expression_top_var_headers_rows, go2geneids, geneids2go, vertices_dict, edges_dict)
             gene_expression_test_vae = vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, gene_expression_top_var_headers_columns, survival_dataset[:, 1]) #vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, labels_assignment[1])
@@ -89,12 +90,12 @@ def run():
 
             vae_lr =[]
             for i in range(app_config["num_randomization"]):
-                print "current loop: {}".format(i)
+                print "VAE current loop: {}".format(i)
                 vae_lr_iter = find_clusters_and_survival(reduced_dim_file_name=reduced_dim_file_name,
                                             total_gene_list_file_name=reduced_dim_file_name, gene_list_pca_name=gene_list_pca_name,
                                             gene_expression_file_name=vae_projections_fname,
                                             phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name,
-                                            var_th_index=var_th_index, is_unsupervised=True, start_k=app_config["start_k"],
+                                            var_th_index=None, is_unsupervised=True, start_k=app_config["start_k"],
                                             end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
                                             clustering_algorithm=app_config["clustering_algorithm"])
                 vae_lr.append(vae_lr_iter[0])
@@ -111,12 +112,12 @@ def run():
 
             pca_lr =[]
             for i in range(app_config["num_randomization"]):
-                print "current loop: {}".format(i)
+                print "PCA current loop: {}".format(i)
                 pca_lr_iter = find_clusters_and_survival(reduced_dim_file_name=reduced_dim_file_name,
                                             total_gene_list_file_name=reduced_dim_file_name, gene_list_pca_name=gene_list_pca_name,
                                             gene_expression_file_name=pca_projections_fname,
                                             phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name,
-                                            var_th_index=var_th_index, is_unsupervised=True, start_k=app_config["start_k"],
+                                            var_th_index=None, is_unsupervised=True, start_k=app_config["start_k"],
                                             end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
                                             clustering_algorithm=app_config["clustering_algorithm"])
                 pca_lr.append(pca_lr_iter[0])
@@ -139,7 +140,7 @@ def run():
 #                                            total_gene_list_file_name=reduced_dim_file_name, gene_list_pca_name=gene_list_pca_name,
 #                                            gene_expression_file_name=vae_projections_fname,
 #                                            phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name,
-#                                            var_th_index=var_th_index, is_unsupervised=True, start_k=app_config["start_k"],
+#                                            var_th_index=None, is_unsupervised=True, start_k=app_config["start_k"],
 #                                            end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
 #                                            clustering_algorithm=app_config["clustering_algorithm"]))
 #                pvals_random_vae.append(lr[0])
