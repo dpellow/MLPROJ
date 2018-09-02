@@ -1,0 +1,2 @@
+30 randomizations, cross_ent
+threshold	num_neurons	latent_dim	num_epochs	Average_VAE	Var_VAE	Average_PCA	Var_PCA
