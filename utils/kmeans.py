@@ -43,7 +43,7 @@ def kmeans( X, centres, delta=.001, maxiter=10, metric="euclidean", p=2, verbose
     if dim != cdim:
         raise ValueError( "kmeans: X %s and centres %s must have the same number of columns" % (
             X.shape, centres.shape ))
-    if verbose:
+    # if verbose:
         # print "kmeans: X %s  centres %s  delta=%.2g  maxiter=%d  metric=%s" % (
         #    X.shape, centres.shape, delta, maxiter, metric)
     allx = np.arange(N)
