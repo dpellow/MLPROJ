@@ -63,7 +63,7 @@ def kmeans( X, centres, delta=.001, maxiter=10, metric="euclidean", p=2, verbose
             c = np.where( xtoc == jc )[0]
             if len(c) > 0:
                 centres[jc] = X[c].mean( axis=0 )
-    if verbose:
+    # if verbose:
         # print "kmeans: %d iterations  cluster sizes:" % jiter, np.bincount(xtoc)
     if verbose >= 2:
         r50 = np.zeros(k)
