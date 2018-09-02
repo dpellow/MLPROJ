@@ -35,14 +35,16 @@ memory_limit()
 # for cur_suffix in ["gt","gly","lac","tca"]:
 #     for cur_dir in ["high","low"]:
 #
-file(os.path.join(constants.LIST_DIR, "reduced_dim_vae.txt"),'w+').write("\n".join([str(x) for x in range(app_config['latent_dim'])]))
-for cur_tested_file in ["protein_coding_long.txt"]:
+def run():
+
+ file(os.path.join(constants.LIST_DIR, "reduced_dim_vae.txt"),'w+').write("\n".join([str(x) for x in range(app_config['latent_dim'])]))
+ for cur_tested_file in ["protein_coding_long.txt"]:
     for cur_json in ["gender"]: #
 
         for dataset in app_config["datasets"]:
             data_file_name = dataset +".txt"
             f = open(os.path.join(constants.OUTPUT_GLOBAL_DIR, data_file_name), "w+")
-            f.write("Stating dataset: " + dataset + "," + str(time.time()))
+#            f.write("Stating dataset: " + dataset + "," + str(time.time()))
             meta_groups = None
             meta_groups=[json.load(file("groups/{}.json".format(cur_json)))]
 
@@ -99,7 +101,7 @@ for cur_tested_file in ["protein_coding_long.txt"]:
                 print vae_lr_iter[0]
             avg_vae = sum(vae_lr) / float(len(vae_lr))
             var_VAE = np.var(vae_lr)
-            f.write("Average VAE: " + str(avg_vae) + "," + "Variance VAE: " + str(var_VAE) +"," + str(time.time())+"\r\n")
+            f.write("Average VAE: " + str(avg_vae) + "," + "Variance VAE: " + str(var_VAE) +  "\r\n")#"," + str(time.time())+"\r\n")
 
             # PCA
             pca_obj = PCA_obj()
@@ -122,32 +124,32 @@ for cur_tested_file in ["protein_coding_long.txt"]:
             avg_pca = sum(pca_lr) / float(len(pca_lr))
             print "Average PCA: " + str(avg_pca)
             var_pca = np.var(pca_lr)
-            f.write("Average PCA: " + str(avg_pca) + "," + "Variance PCA: " + str(var_pca) + "," + str(time.time()) + "\r\n")
+            f.write("Average PCA: " + str(avg_pca) + "," + "Variance PCA: " + str(var_pca) + '\r\n')# + "," + str(time.time()) + "\r\n")
 
             # Randomly permuted VAE
-            pvals_random_vae = []
-            for i in range(app_config["num_randomization"]):
-                gene_expression_top_var_permuted = np.random.permutation(gene_expression_top_var)
-                gene_expression_top_var_permuted_rotated = np.rot90(np.flip(gene_expression_top_var_permuted, 1), k=-1, axes=(1, 0))
-                vae_projections_fname =dataset + "_VAE_projections_random_"+str(i)+".tsv"
-                gene_expression_test_vae = vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_permuted_rotated, gene_expression_top_var_headers_columns,  survival_dataset[:, 1], "VAE_weights_random_"+str(i)+".h5")
-                vae_go_obj.test_go(gene_expression_test_vae, gene_expression_top_var_headers_columns, survival_dataset[:, 1],vae_projections_fname)
-                print "current loop: {}".format(i)
-                lr = (find_clusters_and_survival(reduced_dim_file_name=reduced_dim_file_name,
-                                            total_gene_list_file_name=reduced_dim_file_name, gene_list_pca_name=gene_list_pca_name,
-                                            gene_expression_file_name=vae_projections_fname,
-                                            phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name,
-                                            var_th_index=var_th_index, is_unsupervised=True, start_k=app_config["start_k"],
-                                            end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
-                                            clustering_algorithm=app_config["clustering_algorithm"]))
-                pvals_random_vae.append(lr[0])
-            avg_random_VAE = sum(pvals_random_vae)/float(len(pvals_random_vae))
-            var_random_VAE = np.var(pvals_random_vae)
-            f.write("Average random VAE: " + str(avg_random_VAE) + "," + "Variance random VAE: " + str(var_random_VAE) + "," + str(time.time()) +"\r\n")
+#            pvals_random_vae = []
+#            for i in range(app_config["num_randomization"]):
+#                gene_expression_top_var_permuted = np.random.permutation(gene_expression_top_var)
+#                gene_expression_top_var_permuted_rotated = np.rot90(np.flip(gene_expression_top_var_permuted, 1), k=-1, axes=(1, 0))
+#                vae_projections_fname =dataset + "_VAE_projections_random_"+str(i)+".tsv"
+#                gene_expression_test_vae = vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_permuted_rotated, gene_expression_top_var_headers_columns,  survival_dataset[:, 1], "VAE_weights_random_"+str(i)+".h5")
+#                vae_go_obj.test_go(gene_expression_test_vae, gene_expression_top_var_headers_columns, survival_dataset[:, 1],vae_projections_fname)
+#                print "current loop: {}".format(i)
+#                lr = (find_clusters_and_survival(reduced_dim_file_name=reduced_dim_file_name,
+#                                            total_gene_list_file_name=reduced_dim_file_name, gene_list_pca_name=gene_list_pca_name,
+#                                            gene_expression_file_name=vae_projections_fname,
+#                                            phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name,
+#                                            var_th_index=var_th_index, is_unsupervised=True, start_k=app_config["start_k"],
+#                                            end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
+#                                            clustering_algorithm=app_config["clustering_algorithm"]))
+#                pvals_random_vae.append(lr[0])
+#            avg_random_VAE = sum(pvals_random_vae)/float(len(pvals_random_vae))
+#            var_random_VAE = np.var(pvals_random_vae)
+#            f.write("Average random VAE: " + str(avg_random_VAE) + "," + "Variance random VAE: " + str(var_random_VAE) + "," + str(time.time()) +"\r\n")
 
             print "Average VAE: " + str(avg_vae) + "  ;   Variance VAE: {} ".format(var_VAE) + str(var_VAE)
             print "Average PCA: " + str(avg_pca) + "  ;   Variance PCA: {}".format(var_pca)
-            print "Average random VAE: " + str(avg_random_VAE) + "  ;   Variance random VAE: {}".format(var_random_VAE)
+ #           print "Average random VAE: " + str(avg_random_VAE) + "  ;   Variance random VAE: {}".format(var_random_VAE)
             f.close()
 
             # K-mean & survival
@@ -167,3 +169,6 @@ for cur_tested_file in ["protein_coding_long.txt"]:
 
             # print "fetch go"
             # get_flat_go.fetch_go_hierarchy()
+
+if __name__ == '__main__':
+  run()
