@@ -2,13 +2,23 @@
 
 import main
 
-
-thresholds = [2000,5000,10000]#,15000,20000]
 #thresholds = [2000,5000,10000,15000,20000]
-num_neurons = [100,75,50]#,30,20,10,5]
 #num_neurons = [100,75,50,30,20,10,5]
+
+
+#David's run
+thresholds = [2000,5000,10000]#,15000,20000]
+num_neurons = [100,75,50]#,30,20,10,5]
+
+#Hagai's run
+#thresholds = [2000,5000,10000]#,15000,20000]
+#num_neurons = [30,20,10,5]
+
+#Asia's run
+#thresholds = [15000,20000]
+#num_neurons = [100,75,50,30,20,10,5]
+
 latent_dims = [2,5,10,20,30,50,75,100]
-#latent_dims = [2,5,10,20,30,50,75,100]
 epochs = [50,200,500,1000]
 
 
