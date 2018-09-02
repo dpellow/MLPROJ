@@ -45,7 +45,7 @@ def kmeans( X, centres, delta=.001, maxiter=10, metric="euclidean", p=2, verbose
             X.shape, centres.shape ))
     if verbose:
         # print "kmeans: X %s  centres %s  delta=%.2g  maxiter=%d  metric=%s" % (
-            X.shape, centres.shape, delta, maxiter, metric)
+        #    X.shape, centres.shape, delta, maxiter, metric)
     allx = np.arange(N)
     prevdist = 0
     for jiter in range( 1, maxiter+1 ):
