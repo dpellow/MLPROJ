@@ -53,7 +53,7 @@ def kmeans( X, centres, delta=.001, maxiter=10, metric="euclidean", p=2, verbose
         xtoc = D.argmin(axis=1)  # X -> nearest centre
         distances = D[allx,xtoc]
         avdist = distances.mean()  # median ?
-        if verbose >= 2:
+        # if verbose >= 2:
             # print "kmeans: av |X - nearest centre| = %.4g" % avdist
         if (1 - delta) * prevdist <= avdist <= prevdist \
         or jiter == maxiter:
@@ -215,6 +215,6 @@ if __name__ == "__main__":
         randomcentres = randomsample( X, ncluster )
         centres, xtoc, dist = kmeans( X, randomcentres,
             delta=kmdelta, maxiter=kmiter, metric=metric, verbose=2 )
-    print "%.0f msec" % ((time() - t0) * 1000)
+    # print "%.0f msec" % ((time() - t0) * 1000)
 
     # also ~/py/np/kmeans/test-kmeans.py
