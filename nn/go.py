@@ -17,66 +17,6 @@ batch_size = 10
 epsilon_std = 1.0
 
 
-class LossHistory(keras.callbacks.Callback):
-    def on_train_begin(self, logs={}):
-        self.losses = []
-
-    def on_batch_end(self, batch, logs={}):
-        self.losses.append(logs.get('loss'))
-        print logs.get('loss')
-
-    def on_epoch_begin(self, epoch, logs={}):
-        return
-
-    def on_epoch_end(self, epoch, logs={}):
-        self.losses.append(logs.get('loss'))
-        # y_pred = self.model.predict(self.model.validation_data[0])
-        # self.aucs.append(roc_auc_score(self.model.validation_data[1], y_pred))
-        # print self.aucs
-        print logs.get('loss')
-        output = [layer.output for layer in self.model.layers]
-        #print (output)
-        # funcs = [K.function(self.model.input+ [K.learning_phase()], [out]) for out in output]
-        # layer_outputs = [func(self.model.data)[0] for func in funcs]
-
-        # for layer in self.model.layers:
-        #     print (layer.name,layer.output[1])
-        # get_activations = K.function([self.model.layer.input, K.learning_phase()], [self.model.layer.output])
-        # activations = get_activations([9, 0])  ##self.model.validation_data[0] instead of 9(batch)?
-        # print activations
-
-        # ##printing outputs
-        # outputs = [[layer.name,layer.output[1]] for layer in self.model.layers]
-        # print outputs
-
-        #### test from - https://github.com/philipperemy/keras-visualize-activations/blob/master/read_activations.py
-        # activations = []
-        # inp = self.model.input
-        # outputs = [layer.output for layer in self.model.layers]
-        # funcs = [K.function(inp + [K.learning_phase()], [out]) for out in outputs]
-        # if isinstance(inp,list):  #multiple inputs
-        #     list_inputs = []
-        #     list_inputs.extend(self.model.validation_data[0]) ### input_data_for test
-        #     list_inputs.append(0.)
-        # else:
-        #     list_inputs = [self.model.validation_data[0], 0.]
-        # layer_outputs = [func(list_inputs)[0] for func in funcs]
-        # for layer_activations in layer_outputs:
-        #     activations.append(layer_activations)
-        #     print(layer_activations)
-
-        # self.model.summary()
-
-        # for layer in self.model.layers:
-        #     print(layer.name,
-        # for layer in self.model.layers:
-        #     output = K.function([self.model.layer.input], [self.model.layer.output])
-        #     layer_output = output([x])[0]
-        #     print (layer.name,out)
-
-        return
-
-
 class VAEgo:
 
     def __init__(self, original_dim):
@@ -351,7 +291,6 @@ class VAEgo:
         # outputs = [layer.output for layer in self.vae.layers]  # all layer outputs
         # functors = [K.function([inp], [out]) for out in outputs]
 
-        history = LossHistory()
         if app_config["load_weights"]:
             self.vae = self.vae.load_weights(os.path.join(constants.OUTPUT_GLOBAL_DIR, vae_weights_fname))
         else:
@@ -360,8 +299,8 @@ class VAEgo:
                                 epochs=num_of_epochs,
                                 batch_size=batch_size,
                                 validation_split=0.1,
-                                # validation_data=([x for x in x_test.T], None),
-                                callbacks=[history])
+                                # validation_data=([x for x in x_test.T], None)
+                                                  )
             self.vae.save_weights(os.path.join(constants.OUTPUT_GLOBAL_DIR, vae_weights_fname))
         return x_total
 
