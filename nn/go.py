@@ -13,7 +13,7 @@ from keras.models import Model
 from keras import metrics
 from constants import app_config
 
-batch_size = 10
+batch_size = app_config['batch_size'] 
 epsilon_std = 1.0
 
 
