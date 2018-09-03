@@ -379,7 +379,7 @@ def load_integrated_mutation_data(mutation_file_name,
             phenotype_heatmap)
 
 
-def load_integrated_ge_data(tested_gene_list_file_name, total_gene_list_file_name, gene_expression_file_name,gene_list_pca_name,
+def load_integrated_ge_data(tested_gene_list_file_name, total_gene_list_file_name, gene_expression_file_name,
                             survival_file_name, phenotype_file_name, gene_filter_file_name=None, gene_expression_path=None, filter_expression=None,
                             meta_groups=None, var_th_index=None):
     cache_path = os.path.join(constants.CACHE_DIR, "datasets",
@@ -460,22 +460,14 @@ def load_integrated_ge_data(tested_gene_list_file_name, total_gene_list_file_nam
         labels_assignment = labels_assignments(meta_groups, phenotype_file_name,
                                                tested_gene_expression_headers_columns)
 
-    print "loading gene list for PCA"
-    # PCA_related genes
-    tested_gene_expression_headers_rows_pca = np.array(load_gene_list_pca(gene_list_pca_name))
-    tested_gene_expression_pca, tested_gene_expression_headers_rows_pca = filter_genes_for_pca(tested_gene_expression_headers_rows_pca,tested_gene_expression_headers_rows,tested_gene_expression)
 
     # filter top genes by variance
     if var_th_index is not None:
-        print "filtering top vars - VAE"
         tested_gene_expression, tested_gene_expression_headers_rows, tested_gene_expression_headers_columns = filter_top_var_genes(
             tested_gene_expression, tested_gene_expression_headers_columns,
             tested_gene_expression_headers_rows, var_th_index)
 
-        print "filtering top vars - PCA"
-        tested_gene_expression_pca, tested_gene_expression_headers_rows_pca, tested_gene_expression_headers_columns = filter_top_var_genes(
-           tested_gene_expression, tested_gene_expression_headers_columns,
-           tested_gene_expression_headers_rows, var_th_index)
+
     else:
         print "skipping filter top vars"
 
@@ -484,7 +476,7 @@ def load_integrated_ge_data(tested_gene_list_file_name, total_gene_list_file_nam
     # tested_gene_expression_headers_columns = tmp
     # tested_gene_expression = np.rot90(np.flip(tested_gene_expression, 1), k=-1, axes=(1, 0))
 
-    return (tested_gene_expression, tested_gene_expression_headers_rows, tested_gene_expression_headers_columns, labels_assignment, survival_dataset_new, tested_gene_expression_pca,tested_gene_expression_headers_rows_pca)
+    return (tested_gene_expression, tested_gene_expression_headers_rows, tested_gene_expression_headers_columns, labels_assignment, survival_dataset_new)
 
 
 def filter_top_var_genes(tested_gene_expression, tested_gene_expression_headers_columns,

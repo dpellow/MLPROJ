@@ -1,3 +1,2 @@
 30 randomizations, cross_ent
 threshold	num_neurons	latent_dim	num_epochs	Average_VAE	Var_VAE	Average_PCA	Var_PCA
-2000	30	2	50	 0.06760558418103416	 0.03427152439818586	 2.8391917884122922e-05	 9.212546408780694e-10

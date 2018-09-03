@@ -15,7 +15,7 @@ class PCA_obj:
     def __init__(self):
         self.pca = None
 
-    def pca_train(self,patients_list, gene_expression_data, y_data):
+    def pca_train(self,patients_list, gene_expression_data, y_data, latent_dim):
         print "Original dim:" + str(np.shape(gene_expression_data)[1])
         print np.shape(gene_expression_data)
         print "Num of patients: " + str(len(patients_list))
@@ -30,11 +30,11 @@ class PCA_obj:
             y_train = np.array(y_data[:ratio]).astype(np.int32)
             y_test = np.array(y_data[ratio:]).astype(np.int32)
 
-            self.pca = PCA(n_components=app_config["latent_dim"])
+            self.pca = PCA(n_components=latent_dim)
             self.pca.fit(x_train)
         else:
             x_train = np.array(gene_expression_data).astype(np.float64)
-            self.pca = PCA(n_components=app_config["latent_dim"])
+            self.pca = PCA(n_components=latent_dim)
             self.pca.fit(x_train)
             x_test = x_train
 
@@ -55,14 +55,14 @@ class PCA_obj:
         #         clf.fit(x_train_pca, y_train)
         #         print 'score-svm-{}:'.format(kernel) + str(clf.score(x_test_pca, y_test))
 
-    def pca_test(self,x_test,patients_list, y_data, pca_projections_fname = "PCA_compress.tsv"):
+    def pca_test(self,x_test,patients_list, y_data, latent_dim, pca_projections_fname = "PCA_compress.tsv"):
         print "x_shape is:" + str(np.shape(x_test))
         x_test_pca = self.pca.transform(x_test)
         print "Saving PCA data.."
         # x_projected = np.insert(x_projected,[0], np.array(app_config["latent_dim"]),axis = 0)
         # np.save(os.path.join(constants.OUTPUT_GLOBAL_DIR, "PCA_compress.txt"), x_projected)
         x_test_pca = x_test_pca.T
-        pca_data = pd.DataFrame(x_test_pca, index=range(app_config["latent_dim"]), columns=patients_list)
+        pca_data = pd.DataFrame(x_test_pca, index=range(latent_dim), columns=patients_list)
         pca_data.index.name = 'PCA'
         pca_data.to_csv(os.path.join(constants.OUTPUT_GLOBAL_DIR, pca_projections_fname), sep='\t')
 

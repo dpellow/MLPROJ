@@ -14,7 +14,6 @@ from keras import metrics
 from constants import app_config
 
 batch_size = 10
-epochs = app_config["num_of_epochs"]
 epsilon_std = 1.0
 
 
@@ -85,15 +84,15 @@ class VAEgo:
         self.encoder = None
         self.original_dim = original_dim
 
-    def sampling(self, args):
+    def sampling(self, args, latent_dim):
         z_mean, z_log_var = args
-        epsilon = K.random_normal(shape=(K.shape(z_mean)[0], app_config["latent_dim"]), mean=0.,
+        epsilon = K.random_normal(shape=(K.shape(z_mean)[0], latent_dim), mean=0.,
                                   stddev=epsilon_std)
         return z_mean + K.exp(z_log_var / 2) * epsilon
 
     #    def vae_loss():
 
-    def build_go(self, gene_list, go2genes, genes2go, vertices, edges):
+    def build_go(self, gene_list, go2genes, genes2go, vertices, edges, number_of_neurons, latent_dim):
         regex = re.compile(r"[\s, \,, \+, \:, \- ,\(,\, \), \' , \[ , \], \=, \<, \>]", re.IGNORECASE)
 
         count = 0
@@ -125,20 +124,20 @@ class VAEgo:
 
                 go_name = regex.sub(app_config["go_separator"], v["name"]) + "_converged"
 
-                v["neuron_converged"] = Dense(app_config["number_of_neurons"],
+                v["neuron_converged"] = Dense(number_of_neurons,
                                               activation=app_config['activation_function'], name=go_name)
                 v["neuron_converged_inputs"] = cur_layer
 
         
         print "save input layer as list"
-        file(os.path.join(constants.LIST_DIR, app_config["gene_list_pca"]),'w+').write("\n".join(input_ensembl_ids))
+        file(os.path.join(constants.LIST_DIR, app_config["actual_vae_input_genes_file_name"]),'w+').write("\n".join(input_ensembl_ids))
         print "connect intermediate converged GO layers"
         neuron_count = 0
 
         for k, v in sorted([(k, v) for k, v in vertices.iteritems()], key=lambda x: max(x[1]["depth"]), reverse=True):
             if not v.has_key("neuron_converged"):
                 go_name = regex.sub(app_config["go_separator"], v["name"] + "_converged")
-                v["neuron_converged"] = Dense(app_config["number_of_neurons"],
+                v["neuron_converged"] = Dense(number_of_neurons,
                                               activation=app_config['activation_function'], name=go_name)
                 v["neuron_converged_inputs"] = []
 
@@ -169,15 +168,15 @@ class VAEgo:
             print "root and sampling layers"
             inputs = [r["neuron_converged"] for r in roots]
             if len(inputs) > 1:
-                z_mean = Dense(app_config["latent_dim"], name="z_mean")(concatenate(inputs))
-                z_log_var = Dense(app_config["latent_dim"], name="z_log_var")(concatenate(inputs))
+                z_mean = Dense(latent_dim, name="z_mean")(concatenate(inputs))
+                z_log_var = Dense(latent_dim, name="z_log_var")(concatenate(inputs))
             else:
-                z_mean = Dense(app_config["latent_dim"], name="z_mean")(inputs[0])
-                z_log_var = Dense(app_config["latent_dim"], name="z_log_var")(inputs[0])
-            z = Lambda(self.sampling, output_shape=(app_config["latent_dim"],), name='z')([z_mean, z_log_var])
+                z_mean = Dense(latent_dim, name="z_mean")(inputs[0])
+                z_log_var = Dense(latent_dim, name="z_log_var")(inputs[0])
+            z = Lambda(self.sampling, output_shape=(latent_dim,), name='z', arguments={"latent_dim":latent_dim})([z_mean, z_log_var])
             for r in roots:
                 go_name = regex.sub(app_config["go_separator"], r["name"] + "_diverged")
-                r['neuron_diverged'] = Dense(app_config["number_of_neurons"],
+                r['neuron_diverged'] = Dense(number_of_neurons,
                                              activation=app_config['activation_function'], name=go_name)(z)
         else:
             for r in roots: r['neuron_diverged'] = r['neuron_converged']
@@ -196,12 +195,12 @@ class VAEgo:
                           vertices.has_key(cur_parent) and vertices[cur_parent].has_key("neuron_diverged")]
                 go_name = regex.sub(app_config["go_separator"], v["name"] + "_diverged")
                 if len(inputs) == 1:
-                    v["neuron_diverged"] = Dense(app_config["number_of_neurons"],
+                    v["neuron_diverged"] = Dense(number_of_neurons,
                                                  activation=app_config['activation_function'], name=go_name)(inputs[0])
                     neuron_count += 1
                     is_converged = False
                 if len(inputs) > 1:
-                    v["neuron_diverged"] = Dense(app_config["number_of_neurons"],
+                    v["neuron_diverged"] = Dense(number_of_neurons,
                                                  activation=app_config['activation_function'], name=go_name)(
                         concatenate(inputs))
                     neuron_count += 1
@@ -279,13 +278,13 @@ class VAEgo:
 
         plot_model(self.vae, to_file=os.path.join(constants.OUTPUT_GLOBAL_DIR, "model.svg"))
 
-    def train_go(self, header_ensembl_ids,gene_expression_data, patients_list,y_data, vae_weights_fname = "VAE_weights.h5"):
+    def train_go(self, header_ensembl_ids,gene_expression_data, num_of_epochs, vae_weights_fname = "VAE_weights.h5"):
         print np.shape(gene_expression_data)
-        print "start training.."
-        print gene_expression_data[0]
-        # train the VAE on MNIST digits
+        print "about to start training"
         header_ensembl_ids = [x[:x.index(".")] for x in header_ensembl_ids]
         input_ids = []
+
+        print "about prepare samples"
         for cur_input in self.vae.input:
             input_id = str(cur_input.name)[:-2]
             input_ids.append(input_id[:input_id.index("_")])
@@ -300,14 +299,19 @@ class VAEgo:
                 pass
             x = 1
 
+
         for i, data in enumerate(input_data_sorted):
             if data is None:
                 input_data_sorted[i] = np.array([0 for x in range(len(gene_expression_data))]).reshape(
                     len(gene_expression_data), 1)
 
+
+
         concatenated_cols = input_data_sorted[0]
         for cur_col in input_data_sorted[1:]:
             concatenated_cols = np.c_[concatenated_cols, cur_col]
+
+        print "done prepare samples"
 
         # trimmer_index = (len(concatenated_cols) / 10) * 10
         # # if app_config["split_data"]:
@@ -315,15 +319,17 @@ class VAEgo:
         # concatenated_cols = concatenated_cols[:trimmer_index]
         # print "concatenated_cols " + str(len(concatenated_cols))
 
-        ratio = int(math.floor(len(concatenated_cols) * 0.9))
-        print len(concatenated_cols[:ratio])
-        print len(concatenated_cols[ratio:])
-        batch_size = len(concatenated_cols[ratio:])
+        ratio = 0.9
+        # print "split according ratio {}".format()
+        # ratio = int(math.floor(len(concatenated_cols) * ratio))
+        # print len(concatenated_cols[:ratio])
+        # print len(concatenated_cols[ratio:])
+        # batch_size = len(concatenated_cols[ratio:])
         x_total = np.array(concatenated_cols).astype(np.float64)
-        x_train = np.array(concatenated_cols[:ratio]).astype(np.float64)
-        x_test = np.array(concatenated_cols[ratio:]).astype(np.float64)
-        y_train = np.array(y_data[:ratio]).astype(np.int32)
-        y_test = np.array(y_data[ratio:]).astype(np.int32)
+        x_train = x_total # np.array(concatenated_cols[:ratio]).astype(np.float64)
+        # x_test = np.array(concatenated_cols[ratio:]).astype(np.float64)
+        # # y_train = np.array(y_data[:ratio]).astype(np.int32)
+        # # y_test = np.array(y_data[ratio:]).astype(np.int32)
 
         # else:
         #     x_train = np.array(concatenated_cols).astype(np.float64)
@@ -351,9 +357,10 @@ class VAEgo:
         else:
             hist = self.vae.fit([x for x in x_train.T],
                                 shuffle=True,
-                                epochs=epochs,
+                                epochs=num_of_epochs,
                                 batch_size=batch_size,
-                                validation_data=([x for x in x_test.T], None),
+                                validation_split=0.1,
+                                # validation_data=([x for x in x_test.T], None),
                                 callbacks=[history])
             self.vae.save_weights(os.path.join(constants.OUTPUT_GLOBAL_DIR, vae_weights_fname))
         return x_total
@@ -367,16 +374,16 @@ class VAEgo:
         # print('Test loss:', score[0])
         # print('Test accuracy:', score[1])
 
-    def test_go(self, test_input_data, patients_list, y_data, vae_projections_fname = "VAE_compress.tsv"):
+    def test_go(self, test_input_data, patients_list, y_data, latent_dim, vae_projections_fname = "VAE_compress.tsv"):
         print np.shape(test_input_data)
         latent_space = self.encoder.predict([x for x in test_input_data.T], batch_size=batch_size)
         print np.shape(latent_space[2])
 
         print "Saving VAE data.."
-        # x_projected = np.insert(x_projected,[0], np.array(app_config["latent_dim"]),axis = 0)
+        # x_projected = np.insert(x_projected,[0], np.array(latent_dim),axis = 0)
         # np.save(os.path.join(constants.OUTPUT_GLOBAL_DIR, "PCA_compress.txt"), x_projected)
         latent_data = latent_space[2].T
-        pca_data = pd.DataFrame(latent_data, index=range(app_config["latent_dim"]), columns=patients_list)
+        pca_data = pd.DataFrame(latent_data, index=range(latent_dim), columns=patients_list)
         pca_data.index.name = 'VAE'
         pca_data.to_csv(os.path.join(constants.OUTPUT_GLOBAL_DIR, vae_projections_fname), sep='\t')
     # print x_test.T[:3]
