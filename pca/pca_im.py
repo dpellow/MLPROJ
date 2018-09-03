@@ -19,7 +19,7 @@ class PCA_obj:
         print "Original dim:" + str(np.shape(gene_expression_data)[1])
         print np.shape(gene_expression_data)
         print "Num of patients: " + str(len(patients_list))
-
+        print "my dim: {}".format(latent_dim)
         if app_config["split_data"]:
             col = np.shape(gene_expression_data)[0]
             ratio = int(math.floor(col * 0.9))

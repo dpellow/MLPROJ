@@ -1,7 +1,7 @@
 {
     "activation_function": "relu", 
     "actual_vae_input_genes_file_name": "vae_input_genes.txt", 
-    "batch_size": 1000, 
+    "batch_size": 50, 
     "clustering_algorithm": "euclidean", 
     "data_normalizaton": "fpkm_normalized_by_genes_l_inf_norm", 
     "data_normalizaton_": "fpkm", 
