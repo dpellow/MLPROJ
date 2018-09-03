@@ -1,1 +1,37 @@
-{"data_normalizaton_": "fpkm", "load_weights": false, "number_of_neurons": 30, "datasets": ["PANCAN"], "data_normalizaton": "fpkm_normalized_by_genes_l_inf_norm", "num_randomization": 1, "root_": ["GO:0003674", "GO:0005575"], "loss_function": "cross_ent", "is_variational": true, "num_of_epochs": 50, "possible_vae_input_genes_file_name": "mitochondrion_total.txt", "use_svm": false, "go_separator": "Z", "activation_function": "relu", "batch_size": 100, "end_k": 2, "total_gene_list_file_name": "protein_coding_long.txt", "train": true, "var_th_index": 100, "split_data": false, "use_cache": false, "start_k": 2, "root": ["GO:0007005", "GO:0044429"], "latent_dim": 2, "reduced_dim_vae_file_name": "reduced_dim_vae.txt", "clustering_algorithm": "euclidean", "actual_vae_input_genes_file_name": "vae_input_genes.txt"}
+{
+    "activation_function": "relu", 
+    "actual_vae_input_genes_file_name": "vae_input_genes.txt", 
+    "batch_size": 1000, 
+    "clustering_algorithm": "euclidean", 
+    "data_normalizaton": "fpkm_normalized_by_genes_l_inf_norm", 
+    "data_normalizaton_": "fpkm", 
+    "datasets": [
+        "PANCAN"
+    ], 
+    "end_k": 2, 
+    "go_separator": "Z", 
+    "is_variational": true, 
+    "latent_dim": 2, 
+    "load_weights": false, 
+    "loss_function": "cross_ent", 
+    "num_of_epochs": 2, 
+    "num_randomization": 1, 
+    "number_of_neurons": 3, 
+    "possible_vae_input_genes_file_name": "mitochondrion_total.txt", 
+    "reduced_dim_vae_file_name": "reduced_dim_vae.txt", 
+    "root": [
+        "GO:0007005", 
+        "GO:0044429"
+    ], 
+    "root_": [
+        "GO:0003674", 
+        "GO:0005575"
+    ], 
+    "split_data": false, 
+    "start_k": 2, 
+    "total_gene_list_file_name": "protein_coding_long.txt", 
+    "train": true, 
+    "use_cache": false, 
+    "use_svm": false, 
+    "var_th_index": 50
+}

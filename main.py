@@ -101,12 +101,12 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
         print "done loop over VAE with values: var_th_index={}, number_of_neurons={}, latent_dim={}, num_of_epochs={}, num_randomization={}".format(var_th_index,number_of_neurons, latent_dim, num_of_epochs, app_config["num_randomization"])
         avg_vae = np.average(vae_lr)
         var_vae = np.var(vae_lr)
-        results.append({"vae_avg" : avg_vae, "vae_var" : var_vae})
+        results.append({"avg" : avg_vae, "var" : var_vae, "type" : "VAE"})
         print "current VAE results:\n" \
               "{}".format(results[-1])
         # PCA
         pca_obj = PCA_obj()
-        gene_expression_top_var_pca, gene_expression_top_var_headers_rows_pca, gene_expression_top_var_headers_columns_pca, labels_assignment_pca, survival_dataset_pca = load_tcga_data.load(tested_gene_list_file_name=app_config['vae_input_genes_file_name'], total_gene_list_file_name=total_gene_list_file_name, gene_expression_file_name=gene_expression_file_name, phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name, var_th_index=None, filter_expression= filter_expression, meta_groups = meta_groups)
+        gene_expression_top_var_pca, gene_expression_top_var_headers_rows_pca, gene_expression_top_var_headers_columns_pca, labels_assignment_pca, survival_dataset_pca = load_tcga_data.load(tested_gene_list_file_name=app_config['possible_vae_input_genes_file_name'], total_gene_list_file_name=total_gene_list_file_name, gene_expression_file_name=gene_expression_file_name, phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name, var_th_index=None, filter_expression= filter_expression, meta_groups = meta_groups)
 
         tmp = gene_expression_top_var_headers_rows
         gene_expression_top_var_headers_rows_pca = gene_expression_top_var_headers_columns
@@ -131,7 +131,7 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
             print pca_lr_iter[0]
         avg_pca = np.average(pca_lr)
         var_pca = np.var(pca_lr)
-        results.append({"pca_avg" : avg_pca, "pca_var" : var_pca})
+        results.append({"avg" : avg_pca, "var" : var_pca, "type" : "PCA"})
         print "current var results:\n" \
               "{}".format(results[-1])
         ###
@@ -139,15 +139,15 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
         ###
 
 
-        print "current VAE results:\n" \
+        print "final VAE results:\n" \
               "{}".format(results[-2])
 
-        print "current PCA results:\n" \
+        print "final PCA results:\n" \
               "{}".format(results[-1])
 
         print "done running over: var_th_index={}, number_of_neurons={}, latent_dim={}, num_of_epochs={}".format(var_th_index,number_of_neurons, latent_dim, num_of_epochs)
 
-
+	return results
 if __name__ == '__main__':
     run()
 

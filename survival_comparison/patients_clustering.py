@@ -29,7 +29,7 @@ def find_clusters_and_survival(reduced_dim_file_name, total_gene_list_file_name,
     if data is None:
         print "insufficient data"
         return
-    gene_expression_top_var, gene_expression_top_var_headers_rows, gene_expression_top_var_headers_columns, labels_assignment, survival_dataset, _1, _2 = data
+    gene_expression_top_var, gene_expression_top_var_headers_rows, gene_expression_top_var_headers_columns, labels_assignment, survival_dataset = data
     
     
     tmp = gene_expression_top_var_headers_rows
