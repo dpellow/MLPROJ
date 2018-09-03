@@ -8,7 +8,7 @@ import time
 from utils.aggregator import aggregate_all
 from utils.aggregator import clear_all
 latent_dims = [2,5]# ,5,10,20,30,50,75,100]
-epochs = [50,200]
+epochs = [1,2,3,4,5,6,7,8,9,10]
 
 
 #thresholds = [2000,5000,10000,15000,20000]
@@ -21,7 +21,7 @@ epochs = [50,200]
 
 
 #Hagai's run
-thresholds = [100,] # , 2000,5000,10000]#,15000,20000]
+thresholds = [100] # , 2000,5000,10000]#,15000,20000]
 num_neurons = [50]# ,20,10,5]
 
 

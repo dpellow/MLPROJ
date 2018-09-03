@@ -98,7 +98,7 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
                                                          end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
                                                          clustering_algorithm=app_config["clustering_algorithm"])
                 print "VAE done calc cluster and survival".format(i)
-                vae_lr.append(vae_lr_iter[0])
+                vae_lr.append(-10*np.log10(vae_lr_iter[0]))
                 print vae_lr_iter[0]
             print "done loop over VAE with values: var_th_index={}, number_of_neurons={}, latent_dim={}, num_of_epochs={}, num_randomization={}".format(var_th_index,number_of_neurons, latent_dim, num_of_epochs, app_config["num_randomization"])
             avg_vae = np.average(vae_lr)
@@ -108,7 +108,7 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
                   "{}".format(results[-1])
             # PCA
         pca_obj = PCA_obj()
-        gene_expression_top_var_pca, gene_expression_top_var_headers_rows_pca, gene_expression_top_var_headers_columns_pca, labels_assignment_pca, survival_dataset_pca = load_tcga_data.load(tested_gene_list_file_name=app_config['possible_vae_input_genes_file_name'], total_gene_list_file_name=total_gene_list_file_name, gene_expression_file_name=gene_expression_file_name, phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name, var_th_index=None, filter_expression= filter_expression, meta_groups = meta_groups)
+        gene_expression_top_var_pca, gene_expression_top_var_headers_rows_pca, gene_expression_top_var_headers_columns_pca, labels_assignment_pca, survival_dataset_pca = load_tcga_data.load(tested_gene_list_file_name=app_config['actual_vae_input_genes_file_name'], total_gene_list_file_name=total_gene_list_file_name, gene_expression_file_name=gene_expression_file_name, phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name, var_th_index=None, filter_expression= filter_expression, meta_groups = meta_groups)
 
         tmp = gene_expression_top_var_headers_rows_pca
         gene_expression_top_var_headers_rows_pca = gene_expression_top_var_headers_columns_pca
@@ -117,7 +117,7 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
 
         gene_expression_test_pca = pca_obj.pca_train(gene_expression_top_var_headers_rows_pca,gene_expression_top_var_pca, survival_dataset[:, 1], latent_dim)
         pca_projections_fname = "{}_PCA_compress.tsv".format(dataset)
-        pca_obj.pca_test(gene_expression_test_pca, gene_expression_top_var_headers_columns_pca, survival_dataset[:, 1], latent_dim, pca_projections_fname)
+        pca_obj.pca_test(gene_expression_test_pca, gene_expression_top_var_headers_rows_pca, survival_dataset[:, 1], latent_dim, pca_projections_fname)
 
         pca_lr =[]
         for i in range(app_config["num_randomization"]):
@@ -129,7 +129,7 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
                                                      var_th_index=None, is_unsupervised=True, start_k=app_config["start_k"],
                                                      end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
                                                      clustering_algorithm=app_config["clustering_algorithm"])
-            pca_lr.append(pca_lr_iter[0])
+            pca_lr.append(-10*np.log10(pca_lr_iter[0]))
             print pca_lr_iter[0]
         avg_pca = np.average(pca_lr)
         var_pca = np.var(pca_lr)
