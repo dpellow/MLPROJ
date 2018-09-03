@@ -27,9 +27,9 @@ latent_dims = [2,5]
 
 
 #Asia run 1
-thresholds=[1500]
-num_neurons=[5,10]
-latent_dims=[2,5]
+#thresholds=[1500]
+#num_neurons=[5,10]
+#latent_dims=[2,5]
 
 #asia run 2
 #thresholds=[1500]
@@ -52,9 +52,9 @@ for d in latent_dims:
         for n in num_neurons:
 	  if n < d: continue
             ##result proc
-            results = main.run(var_th_index=t,number_of_neurons=n, latent_dim=d, num_of_epochs=epochs)
-
-            with open(os.path.join(constants.OUTPUT_GLOBAL_DIR, "results_{}_{}_{}.txt".format(d,t,n)),'a+') as f:
+              results = main.run(var_th_index=t,number_of_neurons=n, latent_dim=d, num_of_epochs=epochs)
+ 
+              with open(os.path.join(constants.OUTPUT_GLOBAL_DIR, "results_{}_{}_{}.txt".format(d,t,n)),'a+') as f:
                 f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format("threshold", "number_of_neurons", "latent_dims", "epochs", "type", "average", "variance"))
                 for cur_line in results:
                     cur_row = str(t)+"\t"+str(n)+"\t"+str(d)+"\t"
