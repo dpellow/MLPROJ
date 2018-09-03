@@ -216,7 +216,7 @@ class VAEgo:
 
         plot_model(self.vae, to_file=os.path.join(constants.OUTPUT_GLOBAL_DIR, "model.svg"))
 
-    def train_go(self, header_ensembl_ids,gene_expression_data, num_of_epochs, vae_weights_fname = "VAE_weights.h5"):
+    def train_go(self, header_ensembl_ids,gene_expression_data, num_of_epochs, init_epoch, vae_weights_fname = "VAE_weights.h5"):
         print np.shape(gene_expression_data)
         print "about to start training"
         header_ensembl_ids = [x[:x.index(".")] for x in header_ensembl_ids]
@@ -297,6 +297,7 @@ class VAEgo:
                                 epochs=num_of_epochs,
                                 batch_size=batch_size,
                                 validation_split=0.1,
+				initial_epoch=init_epoch
                                 # validation_data=([x for x in x_test.T], None)
                                                   )
             self.vae.save_weights(os.path.join(constants.OUTPUT_GLOBAL_DIR, vae_weights_fname))
