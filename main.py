@@ -98,7 +98,7 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
                                                          end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
                                                          clustering_algorithm=app_config["clustering_algorithm"])
                 print "VAE done calc cluster and survival".format(i)
-                vae_lr.append(vae_lr_iter[0])
+                vae_lr.append(-10*np.log10(vae_lr_iter[0]))
                 print vae_lr_iter[0]
             print "done loop over VAE with values: var_th_index={}, number_of_neurons={}, latent_dim={}, num_of_epochs={}, num_randomization={}".format(var_th_index,number_of_neurons, latent_dim, num_of_epochs, app_config["num_randomization"])
             avg_vae = np.average(vae_lr)
@@ -129,7 +129,7 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
                                                      var_th_index=None, is_unsupervised=True, start_k=app_config["start_k"],
                                                      end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
                                                      clustering_algorithm=app_config["clustering_algorithm"])
-            pca_lr.append(pca_lr_iter[0])
+            pca_lr.append(-10*np.log10(pca_lr_iter[0]))
             print pca_lr_iter[0]
         avg_pca = np.average(pca_lr)
         var_pca = np.var(pca_lr)

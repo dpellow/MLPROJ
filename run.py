@@ -7,8 +7,13 @@ import json
 import time
 from utils.aggregator import aggregate_all
 from utils.aggregator import clear_all
+
 latent_dims = [5]# ,5,10,20,30,50,75,100]
 epochs = [100]
+
+
+
+
 
 
 #thresholds = [2000,5000,10000,15000,20000]
@@ -21,8 +26,13 @@ epochs = [100]
 
 
 #Hagai's run
+
 thresholds = [100,] # , 2000,5000,10000]#,15000,20000]
 num_neurons = [30]# ,20,10,5]
+
+
+
+
 
 
 #Asia's run
