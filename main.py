@@ -110,14 +110,14 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
         pca_obj = PCA_obj()
         gene_expression_top_var_pca, gene_expression_top_var_headers_rows_pca, gene_expression_top_var_headers_columns_pca, labels_assignment_pca, survival_dataset_pca = load_tcga_data.load(tested_gene_list_file_name=app_config['possible_vae_input_genes_file_name'], total_gene_list_file_name=total_gene_list_file_name, gene_expression_file_name=gene_expression_file_name, phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name, var_th_index=None, filter_expression= filter_expression, meta_groups = meta_groups)
 
-        tmp = gene_expression_top_var_headers_rows
-        gene_expression_top_var_headers_rows_pca = gene_expression_top_var_headers_columns
+        tmp = gene_expression_top_var_headers_rows_pca
+        gene_expression_top_var_headers_rows_pca = gene_expression_top_var_headers_columns_pca
         gene_expression_top_var_headers_columns_pca = tmp
-        gene_expression_top_var_pca = np.rot90(np.flip(gene_expression_top_var, 1), k=-1, axes=(1, 0))
+        gene_expression_top_var_pca = np.rot90(np.flip(gene_expression_top_var_pca, 1), k=-1, axes=(1, 0))
 
         gene_expression_test_pca = pca_obj.pca_train(gene_expression_top_var_headers_rows_pca,gene_expression_top_var_pca, survival_dataset[:, 1], latent_dim)
         pca_projections_fname = "{}_PCA_compress.tsv".format(dataset)
-        pca_obj.pca_test(gene_expression_test_pca, gene_expression_top_var_headers_columns, survival_dataset[:, 1], latent_dim, pca_projections_fname)
+        pca_obj.pca_test(gene_expression_test_pca, gene_expression_top_var_headers_columns_pca, survival_dataset[:, 1], latent_dim, pca_projections_fname)
 
         pca_lr =[]
         for i in range(app_config["num_randomization"]):
