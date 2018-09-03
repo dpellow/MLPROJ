@@ -27,12 +27,11 @@ num_neurons = [3,4]# ,20,10,5]
 #thresholds = [15000,20000]
 #num_neurons = [100,75,50,30,20,10,5]
 
+clear_all(latent_dims, epochs, thresholds, num_neurons,time.time())
 
-with open('results.txt',"w",0) as r:
-    r.write("30 randomizations, cross_ent\n")
-    r.write("threshold\tnum_neurons\tlatent_dim\tnum_epochs\tAverage_VAE\tVar_VAE\tAverage_PCA\tVar_PCA\n")
-    rows_output=[]
-    for d in latent_dims:
+
+rows_output=[]
+for d in latent_dims:
         for e in epochs:
             for t in thresholds:
                 for n in num_neurons:
@@ -49,16 +48,16 @@ with open('results.txt',"w",0) as r:
 
         	    cur_row = str(t)+"\t"+str(n)+"\t"+str(d)+"\t"+str(e)+"\t"
         	    for cur_line in results:
-            		psplit = cur_line[1].strip().split(",")
-            		method = psplit[0].split(":")[0].split("_")[0]
-            		avg = psplit[0].split(":")[1]
-            		var = psplit[1].split(":")[1]
-            		cur_row += (str(avg)+'\t'+str(var)+'\t')
+			print cur_line
+            		method = cur_line['type']
+            		avg = cur_line['avg']
+            		var = cur_line['var']
+            		cur_row += (method +'\t'+str(avg)+'\t'+str(var)+'\t')
 
         		open(os.path.join("results_{}_{}_{}_{}.txt".format(d,e,t,n)),'w+').write(cur_row)
 
 
-    			aggregate_all(latent_dims, epochs, thresholds, num_neurons,time.time())
+aggregate_all(latent_dims, epochs, thresholds, num_neurons,time.time())
 
 
 
