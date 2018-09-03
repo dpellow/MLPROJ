@@ -72,7 +72,6 @@ class VAEgo:
         print "save input layer as list"
         file(os.path.join(constants.LIST_DIR, app_config["actual_vae_input_genes_file_name"]),'w+').write("\n".join(input_ensembl_ids))
         print "connect intermediate converged GO layers"
-        neuron_count = 0
 
         for k, v in sorted([(k, v) for k, v in vertices.iteritems()], key=lambda x: max(x[1]["depth"]), reverse=True):
             if not v.has_key("neuron_converged"):
@@ -86,7 +85,6 @@ class VAEgo:
 
             v["neuron_converged_inputs"] = v["neuron_converged_inputs"] + inputs
 
-        print "intermediate layers have {} neurons".format(neuron_count)
 
         for k, v in sorted([(k, v) for k, v in vertices.iteritems()], key=lambda x: max(x[1]["depth"]), reverse=True):
             if v.has_key("neuron_converged") and v.has_key("neuron_converged_inputs"):
@@ -101,7 +99,7 @@ class VAEgo:
                 if len(inputs) > 1:
                     v["neuron_converged"] = v["neuron_converged"](concatenate(inputs))
 
-        print [min(x["depth"]) for x in [v for k, v in vertices.iteritems()]]
+        # print [min(x["depth"]) for x in [v for k, v in vertices.iteritems()]]
         roots = [vertices[x] for x in [k for k, v in vertices.iteritems() if min(v["depth"]) == 1]]
         print "num of roots: {}".format(len(roots))
         if app_config["is_variational"]:
