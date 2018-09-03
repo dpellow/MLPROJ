@@ -22,7 +22,7 @@ epochs = [2, 10]#50,200,500,1000]
 
 #Hagai's run
 thresholds = [50] # , 2000,5000,10000]#,15000,20000]
-num_neurons = [3,4]# ,20,10,5]
+num_neurons = [3]# ,20,10,5]
 
 
 #Asia's run
@@ -40,13 +40,14 @@ for d in latent_dims:
             results = main.run(var_th_index=t,number_of_neurons=n, latent_dim=d, num_of_epochs=epochs)
 
             with open(os.path.join(constants.OUTPUT_GLOBAL_DIR, "results_{}_{}_{}.txt".format(d,t,n)),'a+') as f:
-                f.write("{}\t{}\t{}\t{}\t{}\t{}\n".format("threshold", "number_of_neurons", "latent_dims", "type", "average", "variance"))
+                f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format("threshold", "number_of_neurons", "latent_dims", "epochs", "type", "average", "variance"))
                 for cur_line in results:
                     cur_row = str(t)+"\t"+str(n)+"\t"+str(d)+"\t"
                     method = cur_line['type']
                     avg = cur_line['avg']
                     var = cur_line['var']
-                    cur_row += (method +'\t'+str(avg)+'\t'+str(var)+'\n')
+                    e = cur_line.get('epochs'," " )
+                    cur_row += (str(e)+'\t'+method +'\t'+str(avg)+'\t'+str(var)+'\n')
                     f.write(cur_row)
 
 
