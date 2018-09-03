@@ -14,7 +14,6 @@ from keras import metrics
 from constants import app_config
 
 batch_size = 10
-epochs = app_config["num_of_epochs"]
 epsilon_std = 1.0
 
 
@@ -290,7 +289,7 @@ class VAEgo:
         else:
             hist = self.vae.fit([x for x in x_train.T],
                                 shuffle=True,
-                                epochs=epochs,
+                                epochs=app_config['num_of_epochs'],
                                 batch_size=batch_size,
                                 validation_data=([x for x in x_test.T], None))
             self.vae.save_weights(os.path.join(constants.OUTPUT_GLOBAL_DIR, vae_weights_fname))
