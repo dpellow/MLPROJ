@@ -1,3 +1,4 @@
 *.pyc
 /env/config/conf.json
 /.idea
+results.txt
