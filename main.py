@@ -76,10 +76,10 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
         vae_go_obj = VAEgo(gene_expression_top_var_rotated.shape[1])
         vae_go_obj.build_go(gene_expression_top_var_headers_rows, go2geneids, geneids2go, vertices_dict, edges_dict, number_of_neurons, latent_dim)
         print "done prepare VAE"
+        init_epochs = [0]+num_of_epochs[:len(num_of_epochs)-1]
         print "about to calc reduced dim"
-        init_epochs = [0]+app_config["num_of_epochs"][:-1]
         for ind, ie in enumerate(init_epochs):
-            gene_expression_test_vae = vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, num_of_epochs[i],ie)
+            gene_expression_test_vae = vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, num_of_epochs[ind],ie)
             #vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, labels_assignment[1])
             vae_projections_fname = "{}_VAE_compress.tsv".format(dataset)
             print "done calc reduced dim"
@@ -103,7 +103,7 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
             print "done loop over VAE with values: var_th_index={}, number_of_neurons={}, latent_dim={}, num_of_epochs={}, num_randomization={}".format(var_th_index,number_of_neurons, latent_dim, num_of_epochs, app_config["num_randomization"])
             avg_vae = np.average(vae_lr)
             var_vae = np.var(vae_lr)
-            results.append({"avg" : avg_vae, "var" : var_vae, "type" : "VAE"})
+            results.append({"avg" : avg_vae, "var" : var_vae, "type" : "VAE", "epochs" : num_of_epochs[ind]})
             print "current VAE results:\n" \
                   "{}".format(results[-1])
             # PCA

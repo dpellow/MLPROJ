@@ -13,7 +13,7 @@ from keras.models import Model
 from keras import metrics
 from constants import app_config
 
-batch_size = app_config['batch_size'] 
+batch_size = app_config['batch_size']
 epsilon_std = 1.0
 
 
@@ -68,7 +68,7 @@ class VAEgo:
                                               activation=app_config['activation_function'], name=go_name)
                 v["neuron_converged_inputs"] = cur_layer
 
-        
+
         print "save input layer as list"
         file(os.path.join(constants.LIST_DIR, app_config["actual_vae_input_genes_file_name"]),'w+').write("\n".join(input_ensembl_ids))
         print "connect intermediate converged GO layers"
@@ -297,8 +297,8 @@ class VAEgo:
                                 epochs=num_of_epochs,
                                 batch_size=batch_size,
                                 validation_split=0.1,
-				initial_epoch=init_epoch
                                 # validation_data=([x for x in x_test.T], None)
+                                initial_epoch=init_epoch
                                                   )
             self.vae.save_weights(os.path.join(constants.OUTPUT_GLOBAL_DIR, vae_weights_fname))
         return x_total

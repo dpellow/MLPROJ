@@ -14,8 +14,10 @@
     "latent_dim": 2, 
     "load_weights": false, 
     "loss_function": "cross_ent", 
-    "num_of_epochs": 2, 
-    "num_randomization": 1, 
+    "num_of_epochs": [
+        2
+    ], 
+    "num_randomization": 10, 
     "number_of_neurons": 3, 
     "possible_vae_input_genes_file_name": "mitochondrion_total.txt", 
     "reduced_dim_vae_file_name": "reduced_dim_vae.txt", 
