@@ -1,7 +1,7 @@
 import numpy as np
 
 import math
-from keras.layers import Input, Dense, Lambda
+from keras.layers import Input, Dense, Lambda, BatchNormalization
 from keras.models import Model
 from keras import backend as K
 from keras import metrics
@@ -39,49 +39,63 @@ class VAEmesh:
             layer_sizes.append(num_nodes)
         layer_sizes_bottom_up = list(reverse(layer_sizes_top_down))
 
-        x = Input(shape=(self.original_dim,))
+        inputs = Input(shape=(self.original_dim))
+        x = BatchNormalization()(inputs)
         for l_size in layer_sizes_bottom_up:
-            x = Dense (self.intermediate_dim*num_neurons, activation='relu')(x)
+            x = BatchNormalization()(Dense (l_size*num_neurons, activation='relu')(x))
 
-        h = Dense(self.intermediate_dim, activation='relu')(x)
-        z_mean = Dense(latent_dim)(h)
-        z_log_var = Dense(latent_dim)(h)
+        z_mean = BatchNormalization()(Dense(latent_dim)(x))
+        z_log_var = BatchNormalization()(Dense(latent_dim)(x))
 
-        z = Lambda(self.sampling, output_shape=(latent_dim,))([z_mean, z_log_var])
+        z = BatchNormalization()(Lambda(self.sampling, output_shape=(latent_dim,))([z_mean, z_log_var]))
 
-        # we instantiate these layers separately so as to reuse them later
-        decoder_h = Dense(self.intermediate_dim, activation='relu')
-        decoder_mean = Dense(self.original_dim, activation='sigmoid')
-        h_decoded = decoder_h(z)
-        x_decoded_mean = decoder_mean(h_decoded)
+        h = z
+        for l_size in layer_sizes_top_down:
+            h = BatchNormalization()(Dense(l_size*num_neurons, activation='relu')(h))
+        outputs = Dense(self.original_dim, activation='sigmoid')(h)
 
         # instantiate VAE model
-        self.vae = Model(x, x_decoded_mean)
+        self.vae = Model(inputs, outputs)
 
-        # Compute VAE loss
-        vae_loss = self.original_dim * metrics.mean_squared_error(x, x_decoded_mean)
+        if app_config["loss_function"] == "mse":
+            reconstruction_loss = self.original_dim * metrics.mse(inputs, outputs)
+        if app_config["loss_function"] == "cross_ent":
+            reconstruction_loss = self.original_dim * metrics.binary_crossentropy(inputs, outputs)
 
-        xent_loss = self.original_dim * metrics.binary_crossentropy(x, x_decoded_mean) # self.original_dim * metrics.mean_squared_error(x, x_decoded_mean)
-        kl_loss = - 0.5 * K.sum(1 + z_log_var - K.square(z_mean) - K.exp(z_log_var), axis=-1)
-        vae_loss = xent_loss # K.mean(xent_loss + kl_loss)
+        if app_config["is_variational"]:
+            kl = -0.5 * K.sum(1 + z_log_var - K.exp(z_log_var) - K.square(z_mean), axis=1)
+            self.vae.add_loss(K.mean(reconstruction_loss + kl))  # weighting? average?
+        else:
+            self.vae.add_loss(reconstruction_loss)
+        self.vae.compile(optimizer='rmsprop')  # , loss=loss
+        print "number of inputs: {}".format(len(inputs))
+        print "number of outputs: {}".format(len(outputs))
 
-        self.vae.add_loss(vae_loss)
-        self.vae.compile(optimizer='adam') # rmsprop
-        self.vae.summary()
+        plot_model(self.vae, to_file=os.path.join(constants.OUTPUT_GLOBAL_DIR, "model_mesh_{}.svg".format(time.time())))
 
-    def train_mesh(self, x_data, y_data):
-        # train the VAE on MNIST digits
 
-        ratio = int(math.floor(len(x_data) * 0.9))-82
-        x_train = np.array(x_data[:ratio]).astype(np.float32)
-        x_test = np.array(x_data[ratio:-3]).astype(np.float32)
-
-        self.vae.fit(x_train,
+    def train_mesh(self, gene_ids, gene_expressions, num_of_epochs, init_epoch, vae_weights_fname = "VAE_weights.h5"):
+        if app_config["load_weights"]:
+            self.vae = self.vae.load_weights(os.path.join(constants.OUTPUT_GLOBAL_DIR, vae_weights_fname))
+        else:
+            self.vae.fit(gene_expressions,
                 shuffle=True,
-                epochs=epochs,
+                epochs=num_of_epochs,
                 batch_size=batch_size,
-                validation_data=(x_test, None))
+                validation_split = 0.1,
+                initial_epoch=init_epoch
+                )
 
 
-        # encoder = Model(x, [z_mean, z_log_var, z], name='encoder')
-        # predictions = encoder.predict(x_test)
+    def test_mesh(gene_expressions, patients_list, latent_dim, mesh_projections_fname = "mesh_compress.tsv"):
+        print np.shape(gene_expressions)
+        latent_space = self.encoder.predict([x for x in gene_expressions.T], batch_size=batch_size)
+        print np.shape(latent_space[2])
+
+        print "Saving mesh data.."
+        # x_projected = np.insert(x_projected,[0], np.array(latent_dim),axis = 0)
+        # np.save(os.path.join(constants.OUTPUT_GLOBAL_DIR, "PCA_compress.txt"), x_projected)
+        latent_data = latent_space[2].T
+        pca_data = pd.DataFrame(latent_data, index=range(latent_dim), columns=patients_list)
+        pca_data.index.name = 'mesh'
+        pca_data.to_csv(os.path.join(constants.OUTPUT_GLOBAL_DIR, mesh_projections_fname), sep='\t')

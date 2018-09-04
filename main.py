@@ -152,8 +152,7 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
             vae_mesh_obj.train_mesh(gene_expression_top_var_headers_rows_pca, gene_expression_top_var_rotated_pca, num_of_epochs[ind],ie)
             mesh_projections_fname = "{}_{}_{}_{}_mesh_compress.tsv".format(num_of_epochs[ind],latent_dim,number_of_neurons,num_of_epochs[ind])
             print "done train mesh"
-            mesh_go_obj.test_mesh(gene_expression_top_var_headers_columns_pca, survival_dataset[:, 1], latent_dim, mesh_projections_fname)
-
+            mesh_go_obj.test_mesh(gene_expression_top_var_rotated_pca, gene_expression_top_var_headers_columns_pca, latent_dim, mesh_projections_fname)
             mesh_lr =[]
             print "start loop over mesh. total # of loops: {}".format(app_config["num_randomization"])
             for i in range(app_config["num_randomization"]):
@@ -181,18 +180,20 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
 
 
         print "final VAE results:\n" \
-              "{}".format(results[-2])
+              "{}".format(results[-3])
 
         print "final PCA results:\n" \
-              "{}".format(results[-1])
+              "{}".format(results[-2])
 
-        #print "final mesh results:\n" \
-        #      "{}".format(results[-2])
+        print "final mesh results:\n" \
+              "{}".format(results[-1])
 
 
         print "done running over: var_th_index={}, number_of_neurons={}, latent_dim={}, num_of_epochs={}".format(var_th_index,number_of_neurons, latent_dim, num_of_epochs)
 
-	return results
+    return results
+
+
 if __name__ == '__main__':
     run()
 
