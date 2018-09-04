@@ -6,10 +6,6 @@ from keras.models import Model
 from keras import backend as K
 from keras import metrics
 
-
-batch_size = 10
-latent_dim = 2
-epochs = 50
 epsilon_std = 1.0
 
 class VAEmesh:
@@ -17,7 +13,6 @@ class VAEmesh:
     def __init__(self, original_dim):
         self.vae=None
         self.original_dim = original_dim
-        self.intermediate_dim = original_dim/2
 
 
     def sampling(self, args):
@@ -27,8 +22,27 @@ class VAEmesh:
         return z_mean + K.exp(z_log_var / 2) * epsilon
 
 
-    def build_mesh(self):
+    def build_mesh(self, roots, vertices_dict, latent_dim, number_of_neurons, threshold):
+
+        # complicated way to estimate how many layers and how many nodes in each layer
+        # should really get this from GO vae
+        num_layers = max([max(vertices_dict[r]['depth']) for r in roots])
+        max_genes = 1000 # fix this
+        max_nodes = len(vertices_dict)
+        estimate_num_nodes = math.ceil(max_nodes*threshold/float(max_genes))
+        num_roots = len(roots)
+        estimate_layer_delta = math.ceil((2*(estimate_num_nodes - num_roots))/float(num_layers*(num_layers-1)))
+        layer_sizes_top_down = [num_roots]
+        num_nodes = num_roots
+        for i in range(num_layers-1):
+            num_nodes += estimate_layer_delta
+            layer_sizes.append(num_nodes)
+        layer_sizes_bottom_up = list(reverse(layer_sizes_top_down))
+
         x = Input(shape=(self.original_dim,))
+        for l_size in layer_sizes_bottom_up:
+            x = Dense (self.intermediate_dim*num_neurons, activation='relu')(x)
+
         h = Dense(self.intermediate_dim, activation='relu')(x)
         z_mean = Dense(latent_dim)(h)
         z_log_var = Dense(latent_dim)(h)
@@ -71,9 +85,3 @@ class VAEmesh:
 
         # encoder = Model(x, [z_mean, z_log_var, z], name='encoder')
         # predictions = encoder.predict(x_test)
-
-
-
-
-
-
