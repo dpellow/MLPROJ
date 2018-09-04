@@ -11,9 +11,9 @@ from utils.aggregator import clear_all
 epochs = [1,20,50,100,200]
 
 #David's run 1
-thresholds = [100,500]
-num_neurons = [5,10]
-latent_dims = [2,5]
+# thresholds = [100,500]
+# num_neurons = [5,10]
+# latent_dims = [2,5]
 
 #David's run 2
 #thresholds = [100,500]
@@ -21,9 +21,9 @@ latent_dims = [2,5]
 #latent_dims = [2,5,10,50]
 
 #David's run 3 
-#thresholds = [100,500]
-#num_neurons = [100]
-#latent_dims = [2,5,10,50]
+thresholds = [100,500]
+num_neurons = [100]
+latent_dims = [2,5,10,50]
 
 
 #Asia run 1

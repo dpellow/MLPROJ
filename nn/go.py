@@ -1,3 +1,4 @@
+import time
 import re
 import numpy as np
 import constants
@@ -32,7 +33,7 @@ class VAEgo:
 
     #    def vae_loss():
 
-    def build_go(self, gene_list, go2genes, genes2go, vertices, edges, number_of_neurons, latent_dim):
+    def build_go(self, gene_list, go2genes, genes2go, vertices, edges, number_of_neurons, latent_dim, var_th_index):
         regex = re.compile(r"[\s, \,, \+, \:, \- ,\(,\, \), \' , \[ , \], \=, \<, \>]", re.IGNORECASE)
 
         count = 0
@@ -69,8 +70,8 @@ class VAEgo:
                 v["neuron_converged_inputs"] = cur_layer
 
 
-        print "save input layer as list"
-        file(os.path.join(constants.LIST_DIR, app_config["actual_vae_input_genes_file_name"]),'w+').write("\n".join(input_ensembl_ids))
+        print "save input layer as list " + os.path.join(constants.LIST_DIR, "{}_{}_{}_{}".format(var_th_index, number_of_neurons, latent_dim, app_config["actual_vae_input_genes_file_name"])) 
+        file(os.path.join(constants.LIST_DIR, "{}_{}_{}_{}".format(var_th_index, number_of_neurons, latent_dim, app_config["actual_vae_input_genes_file_name"])),'w+').write("\n".join(input_ensembl_ids))
         print "connect intermediate converged GO layers"
 
         for k, v in sorted([(k, v) for k, v in vertices.iteritems()], key=lambda x: max(x[1]["depth"]), reverse=True):
@@ -181,7 +182,7 @@ class VAEgo:
         # instantiate encoder model
         self.encoder = Model(model_inputs, [z_mean, z_log_var, z], name='encoder')
         # self.encoder.summary()
-        plot_model(self.encoder, to_file=os.path.join(constants.OUTPUT_GLOBAL_DIR, "encoder.svg"))
+        plot_model(self.encoder, to_file=os.path.join(constants.OUTPUT_GLOBAL_DIR, "encoder_{}.svg".format(time.time())))
 
         # self.decoder = Model()
 
@@ -214,7 +215,7 @@ class VAEgo:
         print "number of inputs: {}".format(len(model_inputs))
         print "number of outputs: {}".format(len(model_outputs))
 
-        plot_model(self.vae, to_file=os.path.join(constants.OUTPUT_GLOBAL_DIR, "model.svg"))
+        plot_model(self.vae, to_file=os.path.join(constants.OUTPUT_GLOBAL_DIR, "model_{}.svg".format(time.time())))
 
     def train_go(self, header_ensembl_ids,gene_expression_data, num_of_epochs, init_epoch, vae_weights_fname = "VAE_weights.h5"):
         print np.shape(gene_expression_data)

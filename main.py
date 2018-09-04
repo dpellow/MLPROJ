@@ -37,8 +37,8 @@ memory_limit()
 #
 def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['number_of_neurons'], latent_dim=app_config['latent_dim'], num_of_epochs=app_config['num_of_epochs']):
 
-    reduced_dim_file_name = app_config["reduced_dim_vae_file_name"]
-    file(os.path.join(constants.LIST_DIR, app_config["reduced_dim_vae_file_name"]),'w+').write("\n".join([str(x) for x in range(latent_dim)]))
+    reduced_dim_file_name = "{}_{}_{}_{}".format( var_th_index, number_of_neurons,latent_dim, app_config["reduced_dim_vae_file_name"])
+    file(os.path.join(constants.LIST_DIR, reduced_dim_file_name),'w+').write("\n".join([str(x) for x in range(latent_dim)]))
     tested_gene_list_file_name =  app_config["possible_vae_input_genes_file_name"]
 
     for dataset in app_config["datasets"]:
@@ -74,7 +74,7 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
         # VAE
         print "about prepare VAE"
         vae_go_obj = VAEgo(gene_expression_top_var_rotated.shape[1])
-        vae_go_obj.build_go(gene_expression_top_var_headers_rows, go2geneids, geneids2go, vertices_dict, edges_dict, number_of_neurons, latent_dim)
+        vae_go_obj.build_go(gene_expression_top_var_headers_rows, go2geneids, geneids2go, vertices_dict, edges_dict, number_of_neurons, latent_dim, var_th_index)
         print "done prepare VAE"
         init_epochs = [0]+num_of_epochs[:len(num_of_epochs)-1]
         print "about to calc reduced dim"
@@ -90,6 +90,7 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
             for i in range(app_config["num_randomization"]):
                 print "VAE current loop: {}".format(i)
                 print "VAE about to calc cluster and survival".format(i)
+                
                 vae_lr_iter = find_clusters_and_survival(reduced_dim_file_name=reduced_dim_file_name,
                                                          total_gene_list_file_name=reduced_dim_file_name,
                                                          gene_expression_file_name=vae_projections_fname,
@@ -108,7 +109,7 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
                   "{}".format(results[-1])
             # PCA
         pca_obj = PCA_obj()
-        gene_expression_top_var_pca, gene_expression_top_var_headers_rows_pca, gene_expression_top_var_headers_columns_pca, labels_assignment_pca, survival_dataset_pca = load_tcga_data.load(tested_gene_list_file_name=app_config['actual_vae_input_genes_file_name'], total_gene_list_file_name=total_gene_list_file_name, gene_expression_file_name=gene_expression_file_name, phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name, var_th_index=None, filter_expression= filter_expression, meta_groups = meta_groups)
+        gene_expression_top_var_pca, gene_expression_top_var_headers_rows_pca, gene_expression_top_var_headers_columns_pca, labels_assignment_pca, survival_dataset_pca = load_tcga_data.load(tested_gene_list_file_name="{}_{}_{}_{}".format(app_config["actual_vae_input_genes_file_name"], var_th_index, number_of_neurons, latent_dim), total_gene_list_file_name=total_gene_list_file_name, gene_expression_file_name=gene_expression_file_name, phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name, var_th_index=None, filter_expression= filter_expression, meta_groups = meta_groups)
 
         tmp = gene_expression_top_var_headers_rows_pca
         gene_expression_top_var_headers_rows_pca = gene_expression_top_var_headers_columns_pca
