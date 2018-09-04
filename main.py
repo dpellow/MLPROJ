@@ -81,7 +81,7 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
         for ind, ie in enumerate(init_epochs):
             gene_expression_test_vae = vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, num_of_epochs[ind],ie)
           #vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, labels_assignment[1])
-            vae_projections_fname = "{}_{}_{}_{}_VAE_compress.tsv".format(num_of_epochs[ind],latent_dim,number_of_neurons,num_of_epochs[ind])
+            vae_projections_fname = "{}_{}_{}_{}_VAE_compress.tsv".format(var_th_index,number_of_neurons,latent_dim,num_of_epochs[ind])
             print "done calc reduced dim"
             vae_go_obj.test_go(gene_expression_test_vae, gene_expression_top_var_headers_columns, survival_dataset[:, 1], latent_dim, vae_projections_fname)
 
@@ -117,7 +117,7 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
         gene_expression_top_var_pca = np.rot90(np.flip(gene_expression_top_var_pca, 1), k=-1, axes=(1, 0))
 
         gene_expression_test_pca = pca_obj.pca_train(gene_expression_top_var_headers_rows_pca,gene_expression_top_var_pca, survival_dataset[:, 1], latent_dim)
-        pca_projections_fname = "{}_{}_{}_{}_PCA_compress.tsv".format(num_of_epochs[ind],latent_dim,number_of_neurons,num_of_epochs[ind])
+        pca_projections_fname = "{}_{}_{}_{}_PCA_compress.tsv".format(var_th_index,number_of_neurons,latent_dim,num_of_epochs[ind])
         pca_obj.pca_test(gene_expression_test_pca, gene_expression_top_var_headers_rows_pca, survival_dataset[:, 1], latent_dim, pca_projections_fname)
 
         pca_lr =[]
