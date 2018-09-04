@@ -114,7 +114,7 @@ class VAEgo:
                 z_log_var = BatchNormalization()(Dense(latent_dim, name="z_log_var")(inputs[0]))
             z = BatchNormalization()(Lambda(self.sampling, output_shape=(latent_dim,), name='z', arguments={"latent_dim":latent_dim})([z_mean, z_log_var]))
             for r in roots:
-                go_name = regex.sub(app_config["go_separator"], r["name"] + "_diverged")it
+                go_name = regex.sub(app_config["go_separator"], r["name"] + "_diverged")
                 r['neuron_diverged'] = BatchNormalization()(Dense(number_of_neurons,
                                              activation=app_config['activation_function'], name=go_name)(z))
         else:

@@ -20,7 +20,7 @@
     "num_randomization": 30, 
     "number_of_neurons": 3, 
     "possible_vae_input_genes_file_name": "mitochondrion_total.txt", 
-    "possible_vae_input_genes_file_name_": "protein_coding.txt",
+    "possible_vae_input_genes_file_name_": "protein_coding_long.txt",
     "reduced_dim_vae_file_name": "reduced_dim_vae.txt", 
     "root": [
         "GO:0007005", 
