@@ -8,7 +8,7 @@ import time
 from utils.aggregator import aggregate_all
 from utils.aggregator import clear_all
 
-epochs = [1,20,50,100,200]
+epochs = [1,20,40,60,80,100,150,200]
 
 #David's run 1
 # thresholds = [100,500]
@@ -22,7 +22,7 @@ epochs = [1,20,50,100,200]
 
 #David's run 3 
 thresholds = [500]#,500]
-num_neurons = [100]
+num_neurons = [30]
 latent_dims = [2]#,5,10,50]
 
 
@@ -55,14 +55,17 @@ for d in latent_dims:
           results = main.run(var_th_index=t,number_of_neurons=n, latent_dim=d, num_of_epochs=epochs)
  
           with open(os.path.join(constants.OUTPUT_GLOBAL_DIR, "results_{}_{}_{}.txt".format(d,t,n)),'a+') as f:
-                f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format("threshold", "number_of_neurons", "latent_dims", "epochs", "type", "average", "variance"))
+                f.write("{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format("threshold", "number_of_neurons", "latent_dims", "epochs", "type", "average", "variance", "loss", "val_loss"))
                 for cur_line in results:
                     cur_row = str(t)+"\t"+str(n)+"\t"+str(d)+"\t"
                     method = cur_line['type']
                     avg = cur_line['avg']
                     var = cur_line['var']
                     e = cur_line.get('epochs'," " )
-                    cur_row += (str(e)+'\t'+method +'\t'+str(avg)+'\t'+str(var)+'\n')
+                    results = cur_line['results']
+                    loss=cur_line.get('loss', " ")
+                    val_loss  =cur_line.get('val_loss', " ") 
+                    cur_row += (str(e)+'\t'+method +'\t'+str(avg)+'\t'+str(var)+"\t"+str(loss)+"\t"+str(val_loss)+"\t"+results+'\n')
                     f.write(cur_row)
 
 

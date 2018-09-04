@@ -17,7 +17,7 @@
     "num_of_epochs": [
         2
     ], 
-    "num_randomization": 30, 
+    "num_randomization": 10, 
     "number_of_neurons": 3, 
     "possible_vae_input_genes_file_name": "mitochondrion_total.txt", 
     "possible_vae_input_genes_file_name_": "protein_coding_long.txt",

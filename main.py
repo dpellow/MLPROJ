@@ -79,7 +79,7 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
         init_epochs = [0]+num_of_epochs[:len(num_of_epochs)-1]
         print "about to calc reduced dim"
         for ind, ie in enumerate(init_epochs):
-            gene_expression_test_vae = vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, num_of_epochs[ind],ie)
+            gene_expression_test_vae,loss,val_loss = vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, num_of_epochs[ind],ie)
           #vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, labels_assignment[1])
             vae_projections_fname = "{}_{}_{}_{}_VAE_compress.tsv".format(num_of_epochs[ind],latent_dim,number_of_neurons,num_of_epochs[ind])
             print "done calc reduced dim"
@@ -99,12 +99,12 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
                                                          end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
                                                          clustering_algorithm=app_config["clustering_algorithm"])
                 print "VAE done calc cluster and survival".format(i)
-                vae_lr.append(-10*np.log10(vae_lr_iter[0]))
+                vae_lr.append(vae_lr_iter[0])
                 print vae_lr_iter[0]
             print "done loop over VAE with values: var_th_index={}, number_of_neurons={}, latent_dim={}, num_of_epochs={}, num_randomization={}".format(var_th_index,number_of_neurons, latent_dim, num_of_epochs, app_config["num_randomization"])
-            avg_vae = np.average(vae_lr)
-            var_vae = np.var(vae_lr)
-            results.append({"avg" : avg_vae, "var" : var_vae, "type" : "VAE", "epochs" : num_of_epochs[ind]})
+            avg_vae = np.average(-np.log10(vae_lr))
+            var_vae = np.var(-np.log10(vae_lr))
+            results.append({"avg" : avg_vae, "var" : var_vae, "type" : "VAE", "epochs" : num_of_epochs[ind], "results": "\t".join([str(x) for x in vae_lr]), "loss" : loss, "val_loss": val_loss})
             print "current VAE results:\n" \
                   "{}".format(results[-1])
         #
@@ -130,11 +130,11 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
                                                      var_th_index=None, is_unsupervised=True, start_k=app_config["start_k"],
                                                      end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
                                                      clustering_algorithm=app_config["clustering_algorithm"])
-            pca_lr.append(-10*np.log10(pca_lr_iter[0]))
+            pca_lr.append(pca_lr_iter[0])
             print pca_lr_iter[0]
-        avg_pca = np.average(pca_lr)
-        var_pca = np.var(pca_lr)
-        results.append({"avg" : avg_pca, "var" : var_pca, "type" : "PCA"})
+        avg_pca = np.average(-np.log10(pca_lr))
+        var_pca = np.var(-np.log10(pca_lr))
+        results.append({"avg" : avg_pca, "var" : var_pca, "type" : "PCA", "results": "\t".join([str(x) for x in pca_lr])})
         print "current var results:\n" \
               "{}".format(results[-1])
         ###

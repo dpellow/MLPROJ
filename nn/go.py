@@ -13,6 +13,8 @@ from keras.utils import plot_model
 from keras.models import Model
 from keras import metrics
 from constants import app_config
+from keras.callbacks import History 
+
 
 batch_size = app_config['batch_size']
 epsilon_std = 1.0
@@ -188,7 +190,7 @@ class VAEgo:
 
         # Overall VAE model, for reconstruction and training
         self.vae = Model(model_inputs, model_outputs)  # concatenated_outputs
-
+        # print self.vae.summary()
         if app_config["loss_function"] == "mse":
             reconstruction_loss = len(model_inputs) * metrics.mse(concatenated_inputs, concatenated_outputs)
         if app_config["loss_function"] == "cross_ent":
@@ -289,7 +291,7 @@ class VAEgo:
         # inp = self.vae.input  # input placeholder
         # outputs = [layer.output for layer in self.vae.layers]  # all layer outputs
         # functors = [K.function([inp], [out]) for out in outputs]
-
+         
         if app_config["load_weights"]:
             self.vae = self.vae.load_weights(os.path.join(constants.OUTPUT_GLOBAL_DIR, vae_weights_fname))
         else:
@@ -298,11 +300,14 @@ class VAEgo:
                                 epochs=num_of_epochs,
                                 batch_size=batch_size,
                                 validation_split=0.1,
+                                # callbacks=[history]
                                 # validation_data=([x for x in x_test.T], None)
                                 initial_epoch=init_epoch
-                                                  )
+                                                 )
+            print "last loss: {}".format( hist.history['val_loss'][-1])
+            print "last var_loss: {}".format(hist.history['loss'][-1])
             #self.vae.save_weights(os.path.join(constants.OUTPUT_GLOBAL_DIR, vae_weights_fname))
-        return x_total
+        return x_total,hist.history['loss'][-1],hist.history['val_loss'][-1]  
 
         # print(history.losses)
         # print(hist.history)
