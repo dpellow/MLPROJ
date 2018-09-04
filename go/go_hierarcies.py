@@ -57,13 +57,13 @@ class WrHierGO(object):
 
         obj = _WrHierPrt(self, prt)
         obj.ext_hier_rec(goid)
-        prt.write("VERTICES:\n")
-        for k, v in obj.vertices.iteritems():
-            prt.write(str("{} - {}\n".format(k,v)))
+        # prt.write("VERTICES:\n")
+        # for k, v in obj.vertices.iteritems():
+        #     prt.write(str("{} - {}\n".format(k,v)))
 
-        prt.write("EDGES:\n")
-        for k, v in obj.edges.iteritems():
-            prt.write(str("{} - {}\n".format(k,v)))
+        # prt.write("EDGES:\n")
+        # for k, v in obj.edges.iteritems():
+        #     prt.write(str("{} - {}\n".format(k,v)))
 
         return obj
 
@@ -279,7 +279,7 @@ def write_hier_all(gosubdag, out, root_term):
 #################################################################
 def extract_hier_all(gosubdag, out, root_term, go2geneids):
     """write_hier.py: Prints the entire mini GO hierarchy, with counts of children."""
-    out.write('\nTEST EXTRACTION: Print all hierarchies:\n')
+    # out.write('\nTEST EXTRACTION: Print all hierarchies:\n')
     objwr = WrHierGO(gosubdag,  go2geneids=go2geneids)
     obj = objwr.ext_hier_down(root_term, out)
     return (obj.vertices, obj.edges)
@@ -301,7 +301,7 @@ def write_hier_norep(gosubdag, out):
          '=' is used in hierarchy mark to indicate that the pathes
              below the marked term have already been printed.
     """
-    out.write('\nTEST ALL: Print branches just once:\n')
+    # out.write('\nTEST ALL: Print branches just once:\n')
     objwr = WrHierGO(gosubdag, concise=True)
     gos_printed = objwr.prt_hier_down("GO:0000001", out)
     assert gos_printed == set(objwr.gosubdag.go2nt)
@@ -311,7 +311,7 @@ def write_hier_lim(gosubdag, out):
     """Limits hierarchy list to GO Terms specified by user."""
     go_omit = ['GO:0000005', 'GO:0000010']
     go_ids = [go_id for go_id in gosubdag.go2obj if go_id not in go_omit]
-    out.write('\nTEST OMIT: 05 and 10:\n')
+    # out.write('\nTEST OMIT: 05 and 10:\n')
     objwr = WrHierGO(gosubdag, include_only=go_ids)
     gos_printed = objwr.prt_hier_down("GO:0000001", out)
     assert not gos_printed.intersection(go_omit), "SHOULD NOT PRINT {GOs}".format(GOs=go_omit)
@@ -320,7 +320,7 @@ def write_hier_lim(gosubdag, out):
 def write_hier_mrk(gosubdag, out):
     """Print all paths, but mark GO Terms of interest. """
     mark_lst = ['GO:0000001', 'GO:0000003', 'GO:0000006', 'GO:0000008', 'GO:0000009']
-    out.write('\nTEST MARK: 01->03->06->08->09:\n')
+    # out.write('\nTEST MARK: 01->03->06->08->09:\n')
     objwr = WrHierGO(gosubdag, go_marks=mark_lst)
     objwr.prt_hier_down("GO:0000001", out)
       #go_marks=[oGO.id for oGO in oGOs_in_cluster])
