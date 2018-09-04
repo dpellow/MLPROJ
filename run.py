@@ -23,7 +23,7 @@ epochs = [1,20,50,100,200]
 #David's run 3 
 thresholds = [100,500]
 num_neurons = [100]
-latent_dims = [2,5,10,50]
+latent_dims = [50]#,5,10,50]
 
 
 #Asia run 1
