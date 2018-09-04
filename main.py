@@ -109,7 +109,7 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
                   "{}".format(results[-1])
             # PCA
         pca_obj = PCA_obj()
-        gene_expression_top_var_pca, gene_expression_top_var_headers_rows_pca, gene_expression_top_var_headers_columns_pca, labels_assignment_pca, survival_dataset_pca = load_tcga_data.load(tested_gene_list_file_name="{}_{}_{}_{}".format(app_config["actual_vae_input_genes_file_name"], var_th_index, number_of_neurons, latent_dim), total_gene_list_file_name=total_gene_list_file_name, gene_expression_file_name=gene_expression_file_name, phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name, var_th_index=None, filter_expression= filter_expression, meta_groups = meta_groups)
+        gene_expression_top_var_pca, gene_expression_top_var_headers_rows_pca, gene_expression_top_var_headers_columns_pca, labels_assignment_pca, survival_dataset_pca = load_tcga_data.load(tested_gene_list_file_name="{}_{}_{}_{}".format(var_th_index, number_of_neurons, latent_dim, app_config["actual_vae_input_genes_file_name"]), total_gene_list_file_name=total_gene_list_file_name, gene_expression_file_name=gene_expression_file_name, phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name, var_th_index=None, filter_expression= filter_expression, meta_groups = meta_groups)
 
         tmp = gene_expression_top_var_headers_rows_pca
         gene_expression_top_var_headers_rows_pca = gene_expression_top_var_headers_columns_pca
