@@ -210,7 +210,7 @@ class VAEgo:
         # metrics.binary_crossentropy(model_inputs[i], model_outputs[i])
         # self.vae.add_loss(loss)
 
-        self.vae.compile(optimizer='rmsprop')  # , loss=loss
+        self.vae.compile(optimizer='adam')  # , loss=loss
         print "number of inputs: {}".format(len(model_inputs))
         print "number of outputs: {}".format(len(model_outputs))
 
