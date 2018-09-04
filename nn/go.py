@@ -6,7 +6,7 @@ import os
 import math
 import pandas as pd
 import keras
-from keras.layers import Dense, Input, concatenate, Lambda
+from keras.layers import Dense, Input, concatenate, Lambda, BatchNormalization
 from keras import backend as K
 from utils.ensembl2entrez import entrez2ensembl_convertor
 from keras.utils import plot_model
@@ -95,10 +95,10 @@ class VAEgo:
                     del vertices[k]
 
                 if len(inputs) == 1:
-                    v["neuron_converged"] = v["neuron_converged"](inputs[0])
+                    v["neuron_converged"] = BatchNormalization()(v["neuron_converged"](inputs[0]))
 
                 if len(inputs) > 1:
-                    v["neuron_converged"] = v["neuron_converged"](concatenate(inputs))
+                    v["neuron_converged"] = BatchNormalization()(v["neuron_converged"](concatenate(inputs)))
 
         # print [min(x["depth"]) for x in [v for k, v in vertices.iteritems()]]
         roots = [vertices[x] for x in [k for k, v in vertices.iteritems() if min(v["depth"]) == 1]]
@@ -107,16 +107,16 @@ class VAEgo:
             print "root and sampling layers"
             inputs = [r["neuron_converged"] for r in roots]
             if len(inputs) > 1:
-                z_mean = Dense(latent_dim, name="z_mean")(concatenate(inputs))
-                z_log_var = Dense(latent_dim, name="z_log_var")(concatenate(inputs))
+                z_mean = BatchNormalization()(Dense(latent_dim, name="z_mean")(concatenate(inputs)))
+                z_log_var = BatchNormalization()(Dense(latent_dim, name="z_log_var")(concatenate(inputs)))
             else:
-                z_mean = Dense(latent_dim, name="z_mean")(inputs[0])
-                z_log_var = Dense(latent_dim, name="z_log_var")(inputs[0])
-            z = Lambda(self.sampling, output_shape=(latent_dim,), name='z', arguments={"latent_dim":latent_dim})([z_mean, z_log_var])
+                z_mean = BatchNormalization()(Dense(latent_dim, name="z_mean")(inputs[0]))
+                z_log_var = BatchNormalization()(Dense(latent_dim, name="z_log_var")(inputs[0]))
+            z = BatchNormalization()(Lambda(self.sampling, output_shape=(latent_dim,), name='z', arguments={"latent_dim":latent_dim})([z_mean, z_log_var]))
             for r in roots:
-                go_name = regex.sub(app_config["go_separator"], r["name"] + "_diverged")
-                r['neuron_diverged'] = Dense(number_of_neurons,
-                                             activation=app_config['activation_function'], name=go_name)(z)
+                go_name = regex.sub(app_config["go_separator"], r["name"] + "_diverged")it
+                r['neuron_diverged'] = BatchNormalization()(Dense(number_of_neurons,
+                                             activation=app_config['activation_function'], name=go_name)(z))
         else:
             for r in roots: r['neuron_diverged'] = r['neuron_converged']
 
@@ -134,14 +134,14 @@ class VAEgo:
                           vertices.has_key(cur_parent) and vertices[cur_parent].has_key("neuron_diverged")]
                 go_name = regex.sub(app_config["go_separator"], v["name"] + "_diverged")
                 if len(inputs) == 1:
-                    v["neuron_diverged"] = Dense(number_of_neurons,
-                                                 activation=app_config['activation_function'], name=go_name)(inputs[0])
+                    v["neuron_diverged"] = BatchNormalization()(Dense(number_of_neurons,
+                                                 activation=app_config['activation_function'], name=go_name)(inputs[0]))
                     neuron_count += 1
                     is_converged = False
                 if len(inputs) > 1:
-                    v["neuron_diverged"] = Dense(number_of_neurons,
+                    v["neuron_diverged"] = BatchNormalization()(Dense(number_of_neurons,
                                                  activation=app_config['activation_function'], name=go_name)(
-                        concatenate(inputs))
+                        concatenate(inputs)))
                     neuron_count += 1
                     is_converged = False
             print neuron_count
