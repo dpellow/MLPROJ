@@ -300,7 +300,7 @@ class VAEgo:
                                 # validation_data=([x for x in x_test.T], None)
                                 initial_epoch=init_epoch
                                                   )
-            self.vae.save_weights(os.path.join(constants.OUTPUT_GLOBAL_DIR, vae_weights_fname))
+            #self.vae.save_weights(os.path.join(constants.OUTPUT_GLOBAL_DIR, vae_weights_fname))
         return x_total
 
         # print(history.losses)
