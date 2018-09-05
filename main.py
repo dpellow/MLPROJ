@@ -72,22 +72,68 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
 
         results = []
         # VAE
+        # print "about prepare VAE"
+        # vae_go_obj = VAEgo(gene_expression_top_var_rotated.shape[1])
+        # vae_go_obj.build_go(gene_expression_top_var_headers_rows, go2geneids, geneids2go, vertices_dict, edges_dict, number_of_neurons, latent_dim, var_th_index)
+        # print "done prepare VAE"
+        # init_epochs = [0]+num_of_epochs[:len(num_of_epochs)-1]
+        # print "about to calc reduced dim"
+        # for ind, ie in enumerate(init_epochs):
+        #     gene_expression_test_vae,loss,val_loss = vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, num_of_epochs[ind],ie)
+        #     #vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, labels_assignment[1])
+        #     vae_projections_fname = "{}_{}_{}_{}_VAE_compress.tsv".format(var_th_index,number_of_neurons,latent_dim,num_of_epochs[ind])
+        #     print "done calc reduced dim"
+        #     vae_go_obj.test_go(gene_expression_test_vae, gene_expression_top_var_headers_columns, survival_dataset[:, 1], latent_dim, vae_projections_fname)
+
+        #     vae_lr =[]
+        #     print "start loop over VAE. total # of loops: {}".format(app_config["num_randomization"])
+        #     for i in range(app_config["num_randomization"]):
+        #         print "VAE current loop: {}".format(i)
+        #         print "VAE about to calc cluster and survival".format(i)
+                
+        #         vae_lr_iter = find_clusters_and_survival(reduced_dim_file_name=reduced_dim_file_name,
+        #                                                  total_gene_list_file_name=reduced_dim_file_name,
+        #                                                  gene_expression_file_name=vae_projections_fname,
+        #                                                  phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name,
+        #                                                  var_th_index=None, is_unsupervised=True, start_k=app_config["start_k"],
+        #                                                  end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
+        #                                                  clustering_algorithm=app_config["clustering_algorithm"])
+        #         print "VAE done calc cluster and survival".format(i)
+        #         vae_lr.append(vae_lr_iter[0])
+        #         print vae_lr_iter[0]
+        #     print "done loop over VAE with values: var_th_index={}, number_of_neurons={}, latent_dim={}, num_of_epochs={}, num_randomization={}".format(var_th_index,number_of_neurons, latent_dim, num_of_epochs, app_config["num_randomization"])
+        #     avg_vae = np.average(-np.log10(vae_lr))
+        #     var_vae = np.var(-np.log10(vae_lr))
+        #     results.append({"avg" : avg_vae, "var" : var_vae, "type" : "VAE", "epochs" : num_of_epochs[ind], "results": "\t".join([str(x) for x in vae_lr]), "loss" : loss, "val_loss": val_loss})
+        #     print "current VAE results:\n" \
+        #           "{}".format(results[-1])
+        
+        # VAE permutation
         print "about prepare VAE"
         vae_go_obj = VAEgo(gene_expression_top_var_rotated.shape[1])
         vae_go_obj.build_go(gene_expression_top_var_headers_rows, go2geneids, geneids2go, vertices_dict, edges_dict, number_of_neurons, latent_dim, var_th_index)
         print "done prepare VAE"
         init_epochs = [0]+num_of_epochs[:len(num_of_epochs)-1]
         print "about to calc reduced dim"
-        for ind, ie in enumerate(init_epochs):
-            gene_expression_test_vae,loss,val_loss = vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, num_of_epochs[ind],ie)
-          #vae_go_obj.train_go(gene_expression_top_var_headers_rows, gene_expression_top_var_rotated, labels_assignment[1])
-            vae_projections_fname = "{}_{}_{}_{}_VAE_compress.tsv".format(var_th_index,number_of_neurons,latent_dim,num_of_epochs[ind])
-            print "done calc reduced dim"
-            vae_go_obj.test_go(gene_expression_test_vae, gene_expression_top_var_headers_columns, survival_dataset[:, 1], latent_dim, vae_projections_fname)
+        perm_results = np.zeros((len(num_of_epochs),app_config['num_randomization']))
+        ds = []
+        for i in range(app_config["num_randomization"]):
+            gene_expression_top_var_permuted = np.random.permutation(gene_expression_top_var)
+            gene_expression_top_var_permuted_rotated = np.rot90(np.flip(gene_expression_top_var_permuted, 1), k=-1, axes=(1, 0))
+            ds.append(gene_expression_top_var_permuted_rotated)
+        for i in range(app_config["num_randomization"]):
+     
+            for ind, ie in enumerate(init_epochs):
+                
+                gene_expression_test_vae,loss,val_loss = vae_go_obj.train_go(gene_expression_top_var_headers_rows, ds[i], num_of_epochs[ind],ie)  
 
-            vae_lr =[]
-            print "start loop over VAE. total # of loops: {}".format(app_config["num_randomization"])
-            for i in range(app_config["num_randomization"]):
+                vae_projections_fname = "{}_{}_{}_{}_VAE_permutated_compress.tsv".format(var_th_index,number_of_neurons,latent_dim,num_of_epochs[ind])
+                print "done calc reduced dim"
+                vae_go_obj.test_go(gene_expression_test_vae, gene_expression_top_var_headers_columns, survival_dataset[:, 1], latent_dim, vae_projections_fname)
+
+                vae_lr =[]
+
+                print "start loop over VAE. total # of loops: {}".format(app_config["num_randomization"])
                 print "VAE current loop: {}".format(i)
                 print "VAE about to calc cluster and survival".format(i)
                 
@@ -99,54 +145,59 @@ def run(var_th_index=app_config['var_th_index'],number_of_neurons=app_config['nu
                                                          end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
                                                          clustering_algorithm=app_config["clustering_algorithm"])
                 print "VAE done calc cluster and survival".format(i)
-                vae_lr.append(vae_lr_iter[0])
+                perm_results[ind,i]=vae_lr_iter[0]
                 print vae_lr_iter[0]
-            print "done loop over VAE with values: var_th_index={}, number_of_neurons={}, latent_dim={}, num_of_epochs={}, num_randomization={}".format(var_th_index,number_of_neurons, latent_dim, num_of_epochs, app_config["num_randomization"])
-            avg_vae = np.average(-np.log10(vae_lr))
-            var_vae = np.var(-np.log10(vae_lr))
-            results.append({"avg" : avg_vae, "var" : var_vae, "type" : "VAE", "epochs" : num_of_epochs[ind], "results": "\t".join([str(x) for x in vae_lr]), "loss" : loss, "val_loss": val_loss})
-            print "current VAE results:\n" \
+        print "done loop over perm VAE with values: var_th_index={}, number_of_neurons={}, latent_dim={}, num_of_epochs={}, num_randomization={}".format(var_th_index,number_of_neurons, latent_dim, num_of_epochs, app_config["num_randomization"])
+        for cur_epoch in perm_results:
+           avg_vae = np.average(-np.log10(cur_epoch))
+           var_vae = np.var(-np.log10(cur_epoch))
+           results.append({"avg" : avg_vae, "var" : var_vae, "type" : "PERM", "epochs" : num_of_epochs[ind], "results": "\t".join([str(x) for x in vae_lr]), "loss" : loss, "val_loss": val_loss})
+           print "current VAE results:\n" \
                   "{}".format(results[-1])
-            # PCA
-        pca_obj = PCA_obj()
-        gene_expression_top_var_pca, gene_expression_top_var_headers_rows_pca, gene_expression_top_var_headers_columns_pca, labels_assignment_pca, survival_dataset_pca = load_tcga_data.load(tested_gene_list_file_name="{}_{}_{}_{}".format(var_th_index, number_of_neurons, latent_dim, app_config["actual_vae_input_genes_file_name"]), total_gene_list_file_name=total_gene_list_file_name, gene_expression_file_name=gene_expression_file_name, phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name, var_th_index=None, filter_expression= filter_expression, meta_groups = meta_groups)
+    # PCA
+        # pca_obj = PCA_obj()
+        # gene_expression_top_var_pca, gene_expression_top_var_headers_rows_pca, gene_expression_top_var_headers_columns_pca, labels_assignment_pca, survival_dataset_pca = load_tcga_data.load(tested_gene_list_file_name="{}_{}_{}_{}".format(var_th_index, number_of_neurons, latent_dim, app_config["actual_vae_input_genes_file_name"]), total_gene_list_file_name=total_gene_list_file_name, gene_expression_file_name=gene_expression_file_name, phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name, var_th_index=None, filter_expression= filter_expression, meta_groups = meta_groups)
 
-        tmp = gene_expression_top_var_headers_rows_pca
-        gene_expression_top_var_headers_rows_pca = gene_expression_top_var_headers_columns_pca
-        gene_expression_top_var_headers_columns_pca = tmp
-        gene_expression_top_var_pca = np.rot90(np.flip(gene_expression_top_var_pca, 1), k=-1, axes=(1, 0))
+        # tmp = gene_expression_top_var_headers_rows_pca
+        # gene_expression_top_var_headers_rows_pca = gene_expression_top_var_headers_columns_pca
+        # gene_expression_top_var_headers_columns_pca = tmp
+        # gene_expression_top_var_pca = np.rot90(np.flip(gene_expression_top_var_pca, 1), k=-1, axes=(1, 0))
 
-        gene_expression_test_pca = pca_obj.pca_train(gene_expression_top_var_headers_rows_pca,gene_expression_top_var_pca, survival_dataset[:, 1], latent_dim)
-        pca_projections_fname = "{}_{}_{}_{}_PCA_compress.tsv".format(var_th_index,number_of_neurons,latent_dim,num_of_epochs[ind])
-        pca_obj.pca_test(gene_expression_test_pca, gene_expression_top_var_headers_rows_pca, survival_dataset[:, 1], latent_dim, pca_projections_fname)
+        # gene_expression_test_pca = pca_obj.pca_train(gene_expression_top_var_headers_rows_pca,gene_expression_top_var_pca, survival_dataset[:, 1], latent_dim)
+        # pca_projections_fname = "{}_{}_{}_{}_PCA_compress.tsv".format(var_th_index,number_of_neurons,latent_dim,num_of_epochs[ind])
+        # pca_obj.pca_test(gene_expression_test_pca, gene_expression_top_var_headers_rows_pca, survival_dataset[:, 1], latent_dim, pca_projections_fname)
 
-        pca_lr =[]
-        for i in range(app_config["num_randomization"]):
-            print "PCA current loop: {}".format(i)
-            pca_lr_iter = find_clusters_and_survival(reduced_dim_file_name=reduced_dim_file_name,
-                                                     total_gene_list_file_name=reduced_dim_file_name,
-                                                     gene_expression_file_name=pca_projections_fname,
-                                                     phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name,
-                                                     var_th_index=None, is_unsupervised=True, start_k=app_config["start_k"],
-                                                     end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
-                                                     clustering_algorithm=app_config["clustering_algorithm"])
-            pca_lr.append(pca_lr_iter[0])
-            print pca_lr_iter[0]
-        avg_pca = np.average(-np.log10(pca_lr))
-        var_pca = np.var(-np.log10(pca_lr))
-        results.append({"avg" : avg_pca, "var" : var_pca, "type" : "PCA", "results": "\t".join([str(x) for x in pca_lr])})
-        print "current var results:\n" \
-              "{}".format(results[-1])
+        # pca_lr =[]
+        # for i in range(app_config["num_randomization"]):
+        #     print "PCA current loop: {}".format(i)
+        #     pca_lr_iter = find_clusters_and_survival(reduced_dim_file_name=reduced_dim_file_name,
+        #                                              total_gene_list_file_name=reduced_dim_file_name,
+        #                                              gene_expression_file_name=pca_projections_fname,
+        #                                              phenotype_file_name=phenotype_file_name, survival_file_name=survival_file_name,
+        #                                              var_th_index=None, is_unsupervised=True, start_k=app_config["start_k"],
+        #                                              end_k=app_config["end_k"], filter_expression=filter_expression, meta_groups=meta_groups,
+        #                                              clustering_algorithm=app_config["clustering_algorithm"])
+        #     pca_lr.append(pca_lr_iter[0])
+        #     print pca_lr_iter[0]
+        # avg_pca = np.average(-np.log10(pca_lr))
+        # var_pca = np.var(-np.log10(pca_lr))
+        # results.append({"avg" : avg_pca, "var" : var_pca, "type" : "PCA", "results": "\t".join([str(x) for x in pca_lr])})
+        # print "current var results:\n" \
+        #       "{}".format(results[-1])
         ###
         ##premutated VAE HERE
         ###
 
 
-        print "final VAE results:\n" \
-              "{}".format(results[-2])
-
-        print "final PCA results:\n" \
+        # print "final VAE results:\n" \
+        #       "{}".format(results[-2])
+       
+        print "final permutated VAE results:\n" \
               "{}".format(results[-1])
+
+
+        # print "final PCA results:\n" \
+        #       "{}".format(results[-1])
 
         print "done running over: var_th_index={}, number_of_neurons={}, latent_dim={}, num_of_epochs={}".format(var_th_index,number_of_neurons, latent_dim, num_of_epochs)
 
